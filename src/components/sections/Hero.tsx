@@ -1,54 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { ArrowRight, Terminal as TerminalIcon, FileText } from "lucide-react";
+import React from "react";
+import { ArrowRight, FileText } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { motion } from "framer-motion";
+import { Terminal } from "@/components/features/Terminal";
 
 export const Hero: React.FC = () => {
-  const [typedInput, setTypedInput] = useState("");
-  const [terminalOutputs, setTerminalOutputs] = useState<string[]>([]);
-  const [showCursor, setShowCursor] = useState(true);
-
-  useEffect(() => {
-    const command = "whoami";
-    let index = 0;
-
-    // Type the command character by character
-    const typingInterval = setInterval(() => {
-      if (index < command.length) {
-        setTypedInput(command.slice(0, index + 1));
-        index++;
-      } else {
-        clearInterval(typingInterval);
-
-        // Command finished typing. Show outputs sequentially.
-        const outputLines = [
-          "> full-stack developer",
-          "> problem solver",
-          "> builder"
-        ];
-
-        outputLines.forEach((line, idx) => {
-          setTimeout(() => {
-            setTerminalOutputs((prev) => [...prev, line]);
-          }, 300 * (idx + 1));
-        });
-      }
-    }, 100);
-
-    // Blinking terminal cursor
-    const cursorInterval = setInterval(() => {
-      setShowCursor((prev) => !prev);
-    }, 500);
-
-    return () => {
-      clearInterval(typingInterval);
-      clearInterval(cursorInterval);
-    };
-  }, []);
-
   return (
     <section className="relative min-h-[calc(100vh-4rem)] flex items-center py-20 lg:py-32 overflow-hidden">
       {/* Background radial highlight */}
@@ -59,9 +16,9 @@ export const Hero: React.FC = () => {
         <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
           
           {/* Status Tag */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-card border border-border-subtle rounded-full w-fit">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-card border border-border-subtle rounded-full w-fit animate-fade-in">
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            <span className="text-[11px] font-mono tracking-tight text-secondary-text">
+            <span className="text-[11px] font-mono tracking-tight text-secondary-text animate-pulse">
               Available for full-time roles in 2027
             </span>
           </div>
@@ -108,53 +65,12 @@ export const Hero: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Side: Animated Terminal Card */}
+        {/* Right Side: Interactive Terminal */}
         <div className="lg:col-span-5 flex justify-center items-center">
-          <Card className="w-full max-w-md bg-card border border-border-subtle shadow-2xl overflow-hidden font-mono text-sm leading-relaxed rounded-md">
-            {/* Terminal Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-[#080808] border-b border-border-subtle">
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/30" />
-                <span className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/30" />
-                <span className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/30" />
-              </div>
-              <span className="text-xs text-secondary-text/50 select-none">aditya@workstation:~</span>
-              <TerminalIcon className="w-3.5 h-3.5 text-secondary-text/30" />
-            </div>
-
-            {/* Terminal Body */}
-            <div className="p-5 min-h-[180px] flex flex-col justify-between bg-card text-[#F5F5F5] space-y-2 select-none">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-accent">$</span>
-                  <span className="font-semibold">
-                    {typedInput}
-                    {typedInput.length < 6 && showCursor && <span>_</span>}
-                  </span>
-                </div>
-
-                <div className="mt-3 space-y-1.5 text-secondary-text text-sm">
-                  {terminalOutputs.map((line, idx) => {
-                    if (!line) return null;
-                    return (
-                      <div key={idx} className="flex gap-2">
-                        <span className="text-[#00D9A3]/80">{line.slice(0, 1)}</span>
-                        <span>{line.slice(2)}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {terminalOutputs.length === 3 && (
-                <div className="flex items-center gap-2 text-xs text-secondary-text/30 border-t border-border-subtle/50 pt-3 mt-4">
-                  <span>Press Esc to refresh shell</span>
-                </div>
-              )}
-            </div>
-          </Card>
+          <Terminal />
         </div>
       </div>
     </section>
   );
 };
+export default Hero;
