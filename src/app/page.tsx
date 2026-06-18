@@ -26,9 +26,7 @@ export default function Home() {
       
       <main className="flex-grow">
         {/* Hero Section */}
-        <motion.div {...fadeUpProps}>
-          <Hero />
-        </motion.div>
+        <Hero />
 
         {/* About Section */}
         <motion.div {...fadeUpProps}>

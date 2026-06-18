@@ -16,6 +16,7 @@ export const Terminal: React.FC = () => {
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [showCursor, setShowCursor] = useState(true);
+  const [isFocused, setIsFocused] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalBodyRef = useRef<HTMLDivElement>(null);
@@ -193,7 +194,10 @@ export const Terminal: React.FC = () => {
   return (
     <div
       onClick={handleTerminalClick}
-      className="w-full max-w-lg bg-card border border-border-subtle shadow-2xl overflow-hidden font-mono text-sm leading-relaxed rounded-md cursor-text"
+      className={cn(
+        "w-full max-w-[1000px] h-[400px] md:h-[500px] bg-card border shadow-2xl overflow-hidden font-mono text-sm leading-relaxed rounded-md cursor-pointer flex flex-col transition-colors duration-200 text-left",
+        isFocused ? "border-accent/30" : "border-border-subtle"
+      )}
     >
       {/* Terminal Title Bar */}
       <div className="flex items-center justify-between px-4 py-3 bg-[#080808] border-b border-border-subtle select-none">
@@ -209,7 +213,7 @@ export const Terminal: React.FC = () => {
       {/* Terminal Body */}
       <div
         ref={terminalBodyRef}
-        className="p-5 h-[280px] overflow-y-auto bg-card text-[#F5F5F5] scroll-smooth flex flex-col gap-2"
+        className="p-5 flex-1 overflow-y-auto bg-card text-[#F5F5F5] scroll-smooth flex flex-col gap-2"
       >
         <TerminalOutput logs={logs} />
 
@@ -218,13 +222,21 @@ export const Terminal: React.FC = () => {
           <span className="text-secondary-text/60">aditya@portfolio:~{currentDirectory === "~" ? "" : "/" + currentDirectory}$</span>
           
           <div className="flex-1 relative flex items-center">
-            <span className="font-semibold text-[#F5F5F5] whitespace-pre break-all">
-              {rawInput}
-              <span className={cn(
-                "inline-block w-1.5 h-4 bg-accent ml-0.5 align-middle transition-opacity duration-100",
-                showCursor ? "opacity-100" : "opacity-0"
-              )} />
-            </span>
+            {rawInput === "" && !isFocused ? (
+              <span className="text-secondary-text/50 font-mono select-none">
+                Click terminal to start typing...
+              </span>
+            ) : (
+              <span className="font-semibold text-[#F5F5F5] whitespace-pre break-all">
+                {rawInput}
+                {isFocused && (
+                  <span className={cn(
+                    "inline-block w-1.5 h-4 bg-accent ml-0.5 align-middle transition-opacity duration-100",
+                    showCursor ? "opacity-100" : "opacity-0"
+                  )} />
+                )}
+              </span>
+            )}
 
             {/* Hidden Input field capturing native keystrokes */}
             <input
@@ -233,6 +245,8 @@ export const Terminal: React.FC = () => {
               value={rawInput}
               onChange={(e) => setRawInput(e.target.value)}
               onKeyDown={handleKeyDown}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
               className="opacity-0 absolute inset-0 w-full h-full cursor-text outline-none border-none select-none pointer-events-none"
               autoComplete="off"
               autoCorrect="off"
