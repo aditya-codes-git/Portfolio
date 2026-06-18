@@ -43,7 +43,7 @@ export const Hero: React.FC = () => {
   };
 
   return (
-    <section className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-start items-center pt-8 pb-20 lg:pt-12 lg:pb-32 overflow-hidden text-center">
+    <section className="relative min-h-[calc(100dvh-4rem)] flex flex-col justify-start items-center pt-8 pb-20 lg:pt-12 lg:pb-32 overflow-hidden text-center">
       {/* Background radial highlight */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-accent/3 rounded-full blur-[140px] pointer-events-none" />
 
@@ -91,7 +91,7 @@ export const Hero: React.FC = () => {
               <span className="text-accent">&gt;</span>
               <span>Hello, I'm</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] text-gradient mt-2">
+            <h1 className="text-[clamp(2.5rem,8vw,3.75rem)] sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] text-gradient mt-2">
               Aditya Pharande
             </h1>
           </motion.div>
@@ -154,13 +154,13 @@ export const Hero: React.FC = () => {
           {/* Developer CTA Buttons */}
           <motion.div
             {...buttonsFadeProps}
-            className="flex flex-col items-center gap-3 mt-12"
+            className="flex flex-col items-center gap-3 mt-12 w-full"
           >
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button href="#projects" variant="primary">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-sm sm:max-w-none px-4 sm:px-0">
+              <Button href="#projects" variant="primary" className="w-full sm:w-auto min-h-[44px] flex items-center justify-center">
                 Explore Work <span className="ml-1 font-mono">→</span>
               </Button>
-              <Button href="/resume.pdf" variant="secondary" external>
+              <Button href="/resume.pdf" variant="secondary" external className="w-full sm:w-auto min-h-[44px] flex items-center justify-center">
                 View Resume <span className="ml-1.5 font-mono text-[10px] opacity-75 border border-border-subtle px-1 py-0.5 rounded bg-card-alt">⌘R</span>
               </Button>
             </div>

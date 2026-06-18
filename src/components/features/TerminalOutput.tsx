@@ -25,7 +25,7 @@ export const TerminalOutput: React.FC<TerminalOutputProps> = ({ logs }) => {
           )}
 
           {/* Render output based on type */}
-          <div className="text-secondary-text pl-2 leading-relaxed">
+          <div className="text-secondary-text pl-2 leading-relaxed break-words [overflow-wrap:anywhere] [word-break:break-word]">
             {React.isValidElement(log.output) ? (
               log.output
             ) : Array.isArray(log.output) ? (
