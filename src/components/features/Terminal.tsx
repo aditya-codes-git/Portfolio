@@ -195,7 +195,7 @@ export const Terminal: React.FC = () => {
     <div
       onClick={handleTerminalClick}
       className={cn(
-        "w-full max-w-[1000px] h-[400px] md:h-[500px] bg-card border shadow-2xl overflow-hidden font-mono text-sm leading-relaxed rounded-md cursor-pointer flex flex-col transition-colors duration-200 text-left",
+        "w-full max-w-[1000px] h-[400px] md:h-[500px] bg-card border shadow-2xl overflow-hidden font-mono text-sm leading-relaxed rounded-md cursor-text flex flex-col transition-colors duration-200 text-left",
         isFocused ? "border-accent/30" : "border-border-subtle"
       )}
     >
@@ -230,10 +230,12 @@ export const Terminal: React.FC = () => {
               <span className="font-semibold text-[#F5F5F5] whitespace-pre break-all">
                 {rawInput}
                 {isFocused && (
-                  <span className={cn(
-                    "inline-block w-1.5 h-4 bg-accent ml-0.5 align-middle transition-opacity duration-100",
-                    showCursor ? "opacity-100" : "opacity-0"
-                  )} />
+                  <span 
+                    className="text-accent select-none ml-0.5 font-bold" 
+                    style={{ animation: 'blink 1s step-start infinite' }}
+                  >
+                    |
+                  </span>
                 )}
               </span>
             )}
