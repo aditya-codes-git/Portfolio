@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Terminal as TerminalIcon } from "lucide-react";
-import { useInView, AnimatePresence, motion } from "framer-motion";
+import { useInView, AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { commands } from "@/lib/terminal/commands";
 import { parseCommand, autocompleteCommand } from "@/lib/terminal/parser";
 import { TerminalOutput, LogEntry } from "./TerminalOutput";
@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { navigateFromTerminal } from "@/lib/navigation/terminalNavigation";
 import { TerminalWindowControls } from "./TerminalWindowControls";
 import { getStoredTheme, setStoredTheme, terminalThemes, TerminalTheme } from "@/lib/terminal/themes";
+import { getWindowVariants, getRestoreVariants, bodyVariants, terminalTransition } from "@/lib/animations/terminalAnimations";
 
 export const Terminal: React.FC = () => {
   const router = useRouter();
@@ -38,6 +39,16 @@ export const Terminal: React.FC = () => {
   const terminalBodyRef = useRef<HTMLDivElement>(null);
   const inputLineRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
+
+  const shouldReduceMotion = useReducedMotion() ?? false;
+  const windowVariants = getWindowVariants(shouldReduceMotion);
+  const restoreVariants = getRestoreVariants(shouldReduceMotion);
+
+  const handleAnimationComplete = () => {
+    if (terminalBodyRef.current) {
+      terminalBodyRef.current.scrollTop = terminalBodyRef.current.scrollHeight;
+    }
+  };
 
   // Load stored theme on mount
   useEffect(() => {
@@ -583,206 +594,229 @@ export const Terminal: React.FC = () => {
     "--term-input-bg": currentTheme.colors.inputBg,
   } as React.CSSProperties;
 
-  if (windowState.closed) {
-    return (
-      <div className="w-full max-w-[1000px] flex justify-center items-center py-8">
-        <button
-          onClick={handleRestore}
-          className="px-5 py-3 bg-[#111111]/85 border border-[#222222] hover:border-[#00c291]/50 text-[#A3A3A3] hover:text-[#00D9A3] font-mono text-xs rounded-md transition-all active:scale-95 cursor-pointer shadow-lg"
-        >
-          &gt; restore terminal session
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <>
-      {windowState.fullscreen && (
-        <div
-          onClick={() => setWindowState((prev) => ({ ...prev, fullscreen: false }))}
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 cursor-pointer"
-        />
-      )}
-      <div
-        id="terminal"
-        ref={terminalRef}
-        onClick={handleTerminalClick}
-        style={terminalStyle}
-        className={cn(
-          "border shadow-2xl overflow-hidden font-mono leading-relaxed transition-all duration-300 ease-out text-left flex flex-col",
-          windowState.fullscreen
-            ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] md:w-[90vw] h-[85dvh] md:h-[85vh] max-w-none max-h-none z-50 rounded-lg scale-100"
-            : "w-full max-w-[1000px] h-auto rounded-lg md:rounded-md scale-100"
-        )}
-      >
-        {/* Terminal Title Bar */}
-        <div
-          onClick={handleHeaderClick}
-          style={{
-            backgroundColor: "var(--term-bg-header)",
-            borderColor: "var(--term-border)",
-          }}
-          className={cn(
-            "flex items-center justify-between px-4 py-3 border-b select-none",
-            windowState.minimized ? "cursor-pointer" : ""
-          )}
-        >
-          <TerminalWindowControls
-            onClose={handleClose}
-            onMinimize={handleMinimize}
-            onFullscreen={handleFullscreen}
-          />
-          <div className="flex items-center gap-1.5">
-            <span
-              style={{ color: "var(--term-secondary)", opacity: 0.5 }}
-              className="text-xs select-none block md:hidden"
+    <div className="w-full max-w-[1000px] mx-auto min-h-[100px] flex items-center justify-center">
+      <AnimatePresence mode="wait">
+        {windowState.closed ? (
+          <motion.div
+            key="restore-btn"
+            variants={restoreVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="py-8"
+          >
+            <button
+              onClick={handleRestore}
+              className="px-5 py-3 bg-[#111111]/85 border border-[#222222] hover:border-[#00c291]/50 text-[#A3A3A3] hover:text-[#00D9A3] font-mono text-xs rounded-md transition-all active:scale-95 cursor-pointer shadow-lg"
             >
-              terminal {windowState.minimized && "[minimized]"}
-            </span>
-            <span
-              style={{ color: "var(--term-secondary)", opacity: 0.5 }}
-              className="text-xs select-none hidden md:block"
-            >
-              aditya@workstation:~{currentDirectory === "~" ? "" : "/" + currentDirectory} {windowState.minimized && "[minimized]"}
-            </span>
-          </div>
-          {windowState.fullscreen ? (
-            <span
-              style={{ color: "var(--term-secondary)", opacity: 0.4 }}
-              className="text-[10px] font-mono animate-pulse"
-            >
-              ESC to exit
-            </span>
-          ) : (
-            <TerminalIcon className="w-3.5 h-3.5" style={{ color: "var(--term-secondary)", opacity: 0.3 }} />
-          )}
-        </div>
-
-        <AnimatePresence initial={false}>
-          {!windowState.minimized && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: "easeInOut" }}
-              className="overflow-hidden flex flex-col flex-1"
-            >
-              {/* Mobile Quick Command Chips */}
-              {hasBooted && (
-                <div
-                  style={{
-                    backgroundColor: "var(--term-bg)",
-                    borderColor: "var(--term-border)",
-                  }}
-                  className="flex md:hidden items-center gap-2 px-4 py-2 border-b overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden select-none"
-                >
-                  <span
-                    style={{ color: "var(--term-secondary)", opacity: 0.4 }}
-                    className="text-[10px] font-mono uppercase tracking-wider shrink-0"
-                  >
-                    Quick:
-                  </span>
-                  {["projects", "skills", "resume", "contact"].map((cmd) => (
-                    <button
-                      key={cmd}
-                      onClick={(e) => {
-                        e.stopPropagation(); // Avoid triggering terminal click focus
-                        executeCommand(cmd);
-                      }}
-                      style={{
-                        backgroundColor: "var(--term-card-bg)",
-                        borderColor: "var(--term-border)",
-                        color: "var(--term-accent)",
-                      }}
-                      className="px-2.5 py-1 border rounded text-[11px] font-mono shrink-0 active:scale-95 transition-transform cursor-pointer"
-                    >
-                      {cmd}
-                    </button>
-                  ))}
-                </div>
+              &gt; restore terminal session
+            </button>
+          </motion.div>
+        ) : (
+          <div className="relative w-full flex justify-center">
+            <AnimatePresence>
+              {windowState.fullscreen && (
+                <motion.div
+                  initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                  animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
+                  exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                  transition={terminalTransition}
+                  onClick={() => setWindowState((prev) => ({ ...prev, fullscreen: false }))}
+                  className="fixed inset-0 bg-black/70 z-40 cursor-pointer"
+                />
               )}
-
-              {/* Terminal Body */}
+            </AnimatePresence>
+            <motion.div
+              id="terminal"
+              key="terminal-window"
+              layoutId="terminal-window"
+              variants={windowVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              onLayoutAnimationComplete={handleAnimationComplete}
+              onAnimationComplete={handleAnimationComplete}
+              ref={terminalRef}
+              onClick={handleTerminalClick}
+              style={terminalStyle}
+              className={cn(
+                "border shadow-2xl overflow-hidden font-mono leading-relaxed text-left flex flex-col z-50",
+                windowState.fullscreen
+                  ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] md:w-[90vw] h-[85dvh] md:h-[85vh] max-w-none max-h-none rounded-lg scale-100"
+                  : "w-full h-auto rounded-lg md:rounded-md scale-100"
+              )}
+            >
+              {/* Terminal Title Bar */}
               <div
-                ref={terminalBodyRef}
+                onClick={handleHeaderClick}
                 style={{
-                  backgroundColor: "var(--term-bg)",
-                  color: "var(--term-fg)",
+                  backgroundColor: "var(--term-bg-header)",
+                  borderColor: "var(--term-border)",
                 }}
                 className={cn(
-                  "p-4 md:p-5 overflow-y-auto scroll-smooth flex flex-col gap-2",
-                  windowState.fullscreen
-                    ? "flex-grow"
-                    : "h-[400px] md:h-[450px] max-h-[calc(70dvh-44px)] md:max-h-none"
+                  "flex items-center justify-between px-4 py-3 border-b select-none",
+                  windowState.minimized ? "cursor-pointer" : ""
                 )}
               >
-                <TerminalOutput logs={logs} />
-
-                {/* Input Prompter Row */}
-                {hasBooted && (
-                  <div ref={inputLineRef} className="flex items-center gap-2 mt-1">
-                    <span style={{ color: "var(--term-secondary)", opacity: 0.6 }}>
-                      aditya@portfolio:~{currentDirectory === "~" ? "" : "/" + currentDirectory}$
-                    </span>
-                    
-                    <div className="flex-1 relative flex items-center">
-                      {isExecuting ? (
-                        <span
-                          style={{ color: "var(--term-secondary)", opacity: 0.5 }}
-                          className="font-mono select-none"
-                        >
-                          processing...
-                        </span>
-                      ) : rawInput === "" && !isFocused ? (
-                        <span
-                          style={{ color: "var(--term-secondary)", opacity: 0.5 }}
-                          className="font-mono select-none"
-                        >
-                          Click terminal to start typing...
-                        </span>
-                      ) : (
-                        <span
-                          style={{ color: "var(--term-fg)" }}
-                          className="font-semibold whitespace-pre break-all"
-                        >
-                          {rawInput}
-                          {isFocused && (
-                            <span 
-                              style={{ color: "var(--term-accent)", animation: 'blink 1s step-start infinite' }}
-                              className="select-none ml-0.5 font-bold"
-                            >
-                              |
-                            </span>
-                          )}
-                        </span>
-                      )}
-
-                      {/* Hidden Input field capturing native keystrokes */}
-                      <input
-                        ref={inputRef}
-                        type="text"
-                        value={rawInput}
-                        onChange={(e) => setRawInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        onFocus={handleFocus}
-                        onBlur={() => setIsFocused(false)}
-                        disabled={isExecuting}
-                        className="opacity-0 absolute inset-0 w-full h-full cursor-text outline-none border-none select-none pointer-events-none"
-                        autoComplete="off"
-                        autoCorrect="off"
-                        autoCapitalize="off"
-                        spellCheck="false"
-                      />
-                    </div>
-                  </div>
+                <TerminalWindowControls
+                  onClose={handleClose}
+                  onMinimize={handleMinimize}
+                  onFullscreen={handleFullscreen}
+                />
+                <div className="flex items-center gap-1.5">
+                  <span
+                    style={{ color: "var(--term-secondary)", opacity: 0.5 }}
+                    className="text-xs select-none block md:hidden"
+                  >
+                    terminal {windowState.minimized && "[minimized]"}
+                  </span>
+                  <span
+                    style={{ color: "var(--term-secondary)", opacity: 0.5 }}
+                    className="text-xs select-none hidden md:block"
+                  >
+                    aditya@workstation:~{currentDirectory === "~" ? "" : "/" + currentDirectory} {windowState.minimized && "[minimized]"}
+                  </span>
+                </div>
+                {windowState.fullscreen ? (
+                  <span
+                    style={{ color: "var(--term-secondary)", opacity: 0.4 }}
+                    className="text-[10px] font-mono animate-pulse"
+                  >
+                    ESC to exit
+                  </span>
+                ) : (
+                  <TerminalIcon className="w-3.5 h-3.5" style={{ color: "var(--term-secondary)", opacity: 0.3 }} />
                 )}
               </div>
+
+              <AnimatePresence initial={false}>
+                {!windowState.minimized && (
+                  <motion.div
+                    variants={bodyVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    className="overflow-hidden flex flex-col flex-1"
+                  >
+                    {/* Mobile Quick Command Chips */}
+                    {hasBooted && (
+                      <div
+                        style={{
+                          backgroundColor: "var(--term-bg)",
+                          borderColor: "var(--term-border)",
+                        }}
+                        className="flex md:hidden items-center gap-2 px-4 py-2 border-b overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden select-none"
+                      >
+                        <span
+                          style={{ color: "var(--term-secondary)", opacity: 0.4 }}
+                          className="text-[10px] font-mono uppercase tracking-wider shrink-0"
+                        >
+                          Quick:
+                        </span>
+                        {["projects", "skills", "resume", "contact"].map((cmd) => (
+                          <button
+                            key={cmd}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Avoid triggering terminal click focus
+                              executeCommand(cmd);
+                            }}
+                            style={{
+                              backgroundColor: "var(--term-card-bg)",
+                              borderColor: "var(--term-border)",
+                              color: "var(--term-accent)",
+                            }}
+                            className="px-2.5 py-1 border rounded text-[11px] font-mono shrink-0 active:scale-95 transition-transform cursor-pointer"
+                          >
+                            {cmd}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Terminal Body */}
+                    <div
+                      ref={terminalBodyRef}
+                      style={{
+                        backgroundColor: "var(--term-bg)",
+                        color: "var(--term-fg)",
+                      }}
+                      className={cn(
+                        "p-4 md:p-5 overflow-y-auto scroll-smooth flex flex-col gap-2",
+                        windowState.fullscreen
+                          ? "flex-grow"
+                          : "h-[400px] md:h-[450px] max-h-[calc(70dvh-44px)] md:max-h-none"
+                      )}
+                    >
+                      <TerminalOutput logs={logs} />
+
+                      {/* Input Prompter Row */}
+                      {hasBooted && (
+                        <div ref={inputLineRef} className="flex items-center gap-2 mt-1">
+                          <span style={{ color: "var(--term-secondary)", opacity: 0.6 }}>
+                            aditya@portfolio:~{currentDirectory === "~" ? "" : "/" + currentDirectory}$
+                          </span>
+                          
+                          <div className="flex-1 relative flex items-center">
+                            {isExecuting ? (
+                              <span
+                                style={{ color: "var(--term-secondary)", opacity: 0.5 }}
+                                className="font-mono select-none"
+                              >
+                                processing...
+                              </span>
+                            ) : rawInput === "" && !isFocused ? (
+                              <span
+                                style={{ color: "var(--term-secondary)", opacity: 0.5 }}
+                                className="font-mono select-none"
+                              >
+                                Click terminal to start typing...
+                              </span>
+                            ) : (
+                              <span
+                                style={{ color: "var(--term-fg)" }}
+                                className="font-semibold whitespace-pre break-all"
+                              >
+                                {rawInput}
+                                {isFocused && (
+                                  <span 
+                                    style={{ color: "var(--term-accent)", animation: 'blink 1s step-start infinite' }}
+                                    className="select-none ml-0.5 font-bold"
+                                  >
+                                    |
+                                  </span>
+                                )}
+                              </span>
+                            )}
+
+                            {/* Hidden Input field capturing native keystrokes */}
+                            <input
+                              ref={inputRef}
+                              type="text"
+                              value={rawInput}
+                              onChange={(e) => setRawInput(e.target.value)}
+                              onKeyDown={handleKeyDown}
+                              onFocus={handleFocus}
+                              onBlur={() => setIsFocused(false)}
+                              disabled={isExecuting}
+                              className="opacity-0 absolute inset-0 w-full h-full cursor-text outline-none border-none select-none pointer-events-none"
+                              autoComplete="off"
+                              autoCorrect="off"
+                              autoCapitalize="off"
+                              spellCheck="false"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 export default Terminal;
