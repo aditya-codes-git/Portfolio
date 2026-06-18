@@ -166,6 +166,20 @@ export const Terminal: React.FC = () => {
       };
 
       const runStages = async () => {
+        const sleep = (ms: number) => new Promise((resolve) => {
+          const timer = setTimeout(resolve, ms);
+          activeTimers.current.push(timer);
+        });
+
+        if (trimmedInput.length > 200) {
+          await sleep(150);
+          updateLogOutput([
+            "Command too long. Keep inputs under 200 characters.",
+            "Try: help"
+          ]);
+          return;
+        }
+
         const { cmdName, args } = parseCommand(trimmedInput);
         
         const context = {
@@ -178,11 +192,6 @@ export const Terminal: React.FC = () => {
             if (el) el.scrollIntoView({ behavior: "smooth" });
           }
         };
-
-        const sleep = (ms: number) => new Promise((resolve) => {
-          const timer = setTimeout(resolve, ms);
-          activeTimers.current.push(timer);
-        });
 
         try {
           if (cmdName === "projects") {
@@ -240,7 +249,7 @@ export const Terminal: React.FC = () => {
               updateLogOutput(res.output);
             }
           } else {
-            // Instant commands (help, about, skills, experience, clear, ls, cd)
+            // Instant commands (help, about, skills, experience, clear, ls, cd) or AI fallback
             const matchedCmd = commands[cmdName];
             if (matchedCmd) {
               if (cmdName === "clear") {
@@ -252,8 +261,50 @@ export const Terminal: React.FC = () => {
                 updateLogOutput(res.output);
               }
             } else {
-              await sleep(150);
-              updateLogOutput(`Command not found: ${cmdName}. Type "help" for available commands.`);
+              // Rate limiting - maximum 10 requests per session
+              const limit = 10;
+              const count = parseInt(sessionStorage.getItem("terminal_ai_count") || "0", 10);
+              if (count >= limit) {
+                await sleep(150);
+                updateLogOutput([
+                  "AI quota exhausted. My tiny brain needs rest ☕.",
+                  "Try normal commands like 'projects'."
+                ]);
+                return;
+              }
+
+              sessionStorage.setItem("terminal_ai_count", (count + 1).toString());
+
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+              try {
+                const response = await fetch("/api/terminal-ai", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ input: trimmedInput }),
+                  signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                  throw new Error("API returned non-ok status");
+                }
+
+                const data = await response.json();
+                const reply = data.reply || "My AI circuits are sleeping right now. Try: help";
+
+                const replyLines = reply.split("\n");
+                updateLogOutput(replyLines);
+              } catch (fetchErr: any) {
+                clearTimeout(timeoutId);
+                console.error("Groq AI Fallback error:", fetchErr);
+                updateLogOutput([
+                  "My AI circuits are sleeping right now.",
+                  "Try: help"
+                ]);
+              }
             }
           }
         } catch (err) {
