@@ -3,12 +3,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Terminal as TerminalIcon } from "lucide-react";
-import { useInView } from "framer-motion";
+import { useInView, AnimatePresence, motion } from "framer-motion";
 import { commands } from "@/lib/terminal/commands";
 import { parseCommand, autocompleteCommand } from "@/lib/terminal/parser";
 import { TerminalOutput, LogEntry } from "./TerminalOutput";
 import { cn } from "@/lib/utils";
 import { navigateFromTerminal } from "@/lib/navigation/terminalNavigation";
+import { TerminalWindowControls } from "./TerminalWindowControls";
 
 export const Terminal: React.FC = () => {
   const router = useRouter();
@@ -22,6 +23,11 @@ export const Terminal: React.FC = () => {
   const [isExecuting, setIsExecuting] = useState(false);
   const [hasBooted, setHasBooted] = useState(false);
   const [amount, setAmount] = useState(0.4);
+  const [windowState, setWindowState] = useState({
+    minimized: false,
+    closed: false,
+    fullscreen: false
+  });
 
   const activeTimers = useRef<any[]>([]);
   const shouldRefocus = useRef(false);
@@ -30,6 +36,89 @@ export const Terminal: React.FC = () => {
   const terminalBodyRef = useRef<HTMLDivElement>(null);
   const inputLineRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
+
+  // Handle ESC key globally to exit fullscreen
+  useEffect(() => {
+    if (!windowState.fullscreen) return;
+
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setWindowState((prev) => ({ ...prev, fullscreen: false }));
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleGlobalKeyDown);
+    };
+  }, [windowState.fullscreen]);
+
+  const handleClose = () => {
+    setLogs((prev) => [
+      ...prev,
+      {
+        id: Math.random().toString(),
+        directory: currentDirectory,
+        command: "",
+        output: ["closing terminal session...", "connection terminated."]
+      }
+    ]);
+    setTimeout(() => {
+      setWindowState((prev) => ({ ...prev, closed: true }));
+    }, 600);
+  };
+
+  const handleRestore = () => {
+    setWindowState((prev) => ({ ...prev, closed: false }));
+    setLogs((prev) => [
+      ...prev,
+      {
+        id: Math.random().toString(),
+        directory: currentDirectory,
+        command: "",
+        output: ["session restored."]
+      }
+    ]);
+  };
+
+  const handleMinimize = () => {
+    const nextMinimized = !windowState.minimized;
+    setWindowState((prev) => ({ ...prev, minimized: nextMinimized }));
+    if (!nextMinimized) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+        if (terminalBodyRef.current) {
+          terminalBodyRef.current.scrollTop = terminalBodyRef.current.scrollHeight;
+        }
+      }, 300);
+    }
+  };
+
+  const handleFullscreen = () => {
+    const nextFullscreen = !windowState.fullscreen;
+    setWindowState((prev) => ({ ...prev, fullscreen: nextFullscreen }));
+    if (nextFullscreen) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+        if (terminalBodyRef.current) {
+          terminalBodyRef.current.scrollTop = terminalBodyRef.current.scrollHeight;
+        }
+      }, 50);
+    }
+  };
+
+  const handleHeaderClick = (e: React.MouseEvent) => {
+    if (windowState.minimized) {
+      e.stopPropagation();
+      setWindowState((prev) => ({ ...prev, minimized: false }));
+      setTimeout(() => {
+        inputRef.current?.focus();
+        if (terminalBodyRef.current) {
+          terminalBodyRef.current.scrollTop = terminalBodyRef.current.scrollHeight;
+        }
+      }, 300);
+    }
+  };
 
   // Set visibility threshold depending on mobile vs desktop
   useEffect(() => {
@@ -57,7 +146,7 @@ export const Terminal: React.FC = () => {
 
   // Focus the terminal input when clicking anywhere on the terminal box
   const handleTerminalClick = () => {
-    if (!hasBooted) return;
+    if (!hasBooted || windowState.minimized) return;
     inputRef.current?.focus();
     setTimeout(() => {
       inputLineRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -65,7 +154,7 @@ export const Terminal: React.FC = () => {
   };
 
   const handleFocus = () => {
-    if (!hasBooted) return;
+    if (!hasBooted || windowState.minimized) return;
     setIsFocused(true);
     setTimeout(() => {
       inputLineRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -412,108 +501,170 @@ export const Terminal: React.FC = () => {
         setRawInput(commandHistory[newIndex]);
       }
     } else if (e.key === "Escape") {
-      inputRef.current?.blur();
+      if (windowState.fullscreen) {
+        e.preventDefault();
+        setWindowState((prev) => ({ ...prev, fullscreen: false }));
+      } else {
+        inputRef.current?.blur();
+      }
     }
   };
 
-  return (
-    <div
-      id="terminal"
-      ref={terminalRef}
-      onClick={handleTerminalClick}
-      className={cn(
-        "w-full max-w-[1000px] h-[450px] md:h-[500px] max-h-[70dvh] md:max-h-none bg-card border shadow-2xl overflow-hidden font-mono leading-relaxed rounded-lg md:rounded-md cursor-text flex flex-col transition-colors duration-200 text-left",
-        isFocused ? "border-accent/30" : "border-border-subtle"
-      )}
-      style={{ fontSize: "clamp(12px, 2vw, 15px)" }}
-    >
-      {/* Terminal Title Bar */}
-      <div className="flex items-center justify-between px-4 py-3 bg-[#080808] border-b border-border-subtle select-none">
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/30" />
-          <span className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/30" />
-          <span className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/30" />
-        </div>
-        <span className="text-xs text-secondary-text/50 select-none block md:hidden">terminal</span>
-        <span className="text-xs text-secondary-text/50 select-none hidden md:block">aditya@workstation:~{currentDirectory === "~" ? "" : "/" + currentDirectory}</span>
-        <TerminalIcon className="w-3.5 h-3.5 text-secondary-text/30" />
+  if (windowState.closed) {
+    return (
+      <div className="w-full max-w-[1000px] flex justify-center items-center py-8">
+        <button
+          onClick={handleRestore}
+          className="px-5 py-3 bg-[#111111]/85 border border-[#222222] hover:border-[#00c291]/50 text-secondary-text hover:text-[#00D9A3] font-mono text-xs rounded-md transition-all active:scale-95 cursor-pointer shadow-lg"
+        >
+          &gt; restore terminal session
+        </button>
       </div>
+    );
+  }
 
-      {/* Mobile Quick Command Chips */}
-      {hasBooted && (
-        <div className="flex md:hidden items-center gap-2 px-4 py-2 bg-[#0d0d0d] border-b border-border-subtle overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden select-none">
-          <span className="text-[10px] text-secondary-text/40 font-mono uppercase tracking-wider shrink-0">Quick:</span>
-          {["projects", "skills", "resume", "contact"].map((cmd) => (
-            <button
-              key={cmd}
-              onClick={(e) => {
-                e.stopPropagation(); // Avoid triggering terminal click focus
-                executeCommand(cmd);
-              }}
-              className="px-2.5 py-1 bg-card border border-border-subtle rounded text-[11px] text-accent font-mono hover:bg-card-alt shrink-0 active:scale-95 transition-transform cursor-pointer"
-            >
-              {cmd}
-            </button>
-          ))}
-        </div>
+  return (
+    <>
+      {windowState.fullscreen && (
+        <div
+          onClick={() => setWindowState((prev) => ({ ...prev, fullscreen: false }))}
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 cursor-pointer"
+        />
       )}
-
-      {/* Terminal Body */}
       <div
-        ref={terminalBodyRef}
-        className="p-4 md:p-5 flex-1 overflow-y-auto bg-card text-[#F5F5F5] scroll-smooth flex flex-col gap-2"
+        id="terminal"
+        ref={terminalRef}
+        onClick={handleTerminalClick}
+        className={cn(
+          "bg-card border shadow-2xl overflow-hidden font-mono leading-relaxed transition-all duration-300 ease-out text-left flex flex-col",
+          isFocused ? "border-accent/30" : "border-border-subtle",
+          windowState.fullscreen
+            ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] md:w-[90vw] h-[85dvh] md:h-[85vh] max-w-none max-h-none z-50 rounded-lg scale-100"
+            : "w-full max-w-[1000px] h-auto rounded-lg md:rounded-md scale-100"
+        )}
+        style={{ fontSize: "clamp(12px, 2vw, 15px)" }}
       >
-        <TerminalOutput logs={logs} />
+        {/* Terminal Title Bar */}
+        <div
+          onClick={handleHeaderClick}
+          className={cn(
+            "flex items-center justify-between px-4 py-3 bg-[#080808] border-b border-border-subtle select-none",
+            windowState.minimized ? "cursor-pointer hover:bg-[#0c0c0c]" : ""
+          )}
+        >
+          <TerminalWindowControls
+            onClose={handleClose}
+            onMinimize={handleMinimize}
+            onFullscreen={handleFullscreen}
+          />
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-secondary-text/50 select-none block md:hidden">
+              terminal {windowState.minimized && "[minimized]"}
+            </span>
+            <span className="text-xs text-secondary-text/50 select-none hidden md:block">
+              aditya@workstation:~{currentDirectory === "~" ? "" : "/" + currentDirectory} {windowState.minimized && "[minimized]"}
+            </span>
+          </div>
+          {windowState.fullscreen ? (
+            <span className="text-[10px] font-mono text-secondary-text/40 animate-pulse">ESC to exit</span>
+          ) : (
+            <TerminalIcon className="w-3.5 h-3.5 text-secondary-text/30" />
+          )}
+        </div>
 
-        {/* Input Prompter Row */}
-        {hasBooted && (
-          <div ref={inputLineRef} className="flex items-center gap-2 mt-1">
-            <span className="text-secondary-text/60">aditya@portfolio:~{currentDirectory === "~" ? "" : "/" + currentDirectory}$</span>
-            
-            <div className="flex-1 relative flex items-center">
-              {isExecuting ? (
-                <span className="text-secondary-text/50 font-mono select-none">
-                  processing...
-                </span>
-              ) : rawInput === "" && !isFocused ? (
-                <span className="text-secondary-text/50 font-mono select-none">
-                  Click terminal to start typing...
-                </span>
-              ) : (
-                <span className="font-semibold text-[#F5F5F5] whitespace-pre break-all">
-                  {rawInput}
-                  {isFocused && (
-                    <span 
-                      className="text-accent select-none ml-0.5 font-bold" 
-                      style={{ animation: 'blink 1s step-start infinite' }}
+        <AnimatePresence initial={false}>
+          {!windowState.minimized && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="overflow-hidden flex flex-col flex-1"
+            >
+              {/* Mobile Quick Command Chips */}
+              {hasBooted && (
+                <div className="flex md:hidden items-center gap-2 px-4 py-2 bg-[#0d0d0d] border-b border-border-subtle overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden select-none">
+                  <span className="text-[10px] text-secondary-text/40 font-mono uppercase tracking-wider shrink-0">Quick:</span>
+                  {["projects", "skills", "resume", "contact"].map((cmd) => (
+                    <button
+                      key={cmd}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Avoid triggering terminal click focus
+                        executeCommand(cmd);
+                      }}
+                      className="px-2.5 py-1 bg-card border border-border-subtle rounded text-[11px] text-accent font-mono hover:bg-card-alt shrink-0 active:scale-95 transition-transform cursor-pointer"
                     >
-                      |
-                    </span>
-                  )}
-                </span>
+                      {cmd}
+                    </button>
+                  ))}
+                </div>
               )}
 
-              {/* Hidden Input field capturing native keystrokes */}
-              <input
-                ref={inputRef}
-                type="text"
-                value={rawInput}
-                onChange={(e) => setRawInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                onFocus={handleFocus}
-                onBlur={() => setIsFocused(false)}
-                disabled={isExecuting}
-                className="opacity-0 absolute inset-0 w-full h-full cursor-text outline-none border-none select-none pointer-events-none"
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck="false"
-              />
-            </div>
-          </div>
-        )}
+              {/* Terminal Body */}
+              <div
+                ref={terminalBodyRef}
+                className={cn(
+                  "p-4 md:p-5 overflow-y-auto bg-card text-[#F5F5F5] scroll-smooth flex flex-col gap-2",
+                  windowState.fullscreen
+                    ? "flex-grow"
+                    : "h-[400px] md:h-[450px] max-h-[calc(70dvh-44px)] md:max-h-none"
+                )}
+              >
+                <TerminalOutput logs={logs} />
+
+                {/* Input Prompter Row */}
+                {hasBooted && (
+                  <div ref={inputLineRef} className="flex items-center gap-2 mt-1">
+                    <span className="text-secondary-text/60">aditya@portfolio:~{currentDirectory === "~" ? "" : "/" + currentDirectory}$</span>
+                    
+                    <div className="flex-1 relative flex items-center">
+                      {isExecuting ? (
+                        <span className="text-secondary-text/50 font-mono select-none">
+                          processing...
+                        </span>
+                      ) : rawInput === "" && !isFocused ? (
+                        <span className="text-secondary-text/50 font-mono select-none">
+                          Click terminal to start typing...
+                        </span>
+                      ) : (
+                        <span className="font-semibold text-[#F5F5F5] whitespace-pre break-all">
+                          {rawInput}
+                          {isFocused && (
+                            <span 
+                              className="text-accent select-none ml-0.5 font-bold" 
+                              style={{ animation: 'blink 1s step-start infinite' }}
+                            >
+                              |
+                            </span>
+                          )}
+                        </span>
+                      )}
+
+                      {/* Hidden Input field capturing native keystrokes */}
+                      <input
+                        ref={inputRef}
+                        type="text"
+                        value={rawInput}
+                        onChange={(e) => setRawInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        onFocus={handleFocus}
+                        onBlur={() => setIsFocused(false)}
+                        disabled={isExecuting}
+                        className="opacity-0 absolute inset-0 w-full h-full cursor-text outline-none border-none select-none pointer-events-none"
+                        autoComplete="off"
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        spellCheck="false"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </div>
+    </>
   );
 };
 export default Terminal;
