@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Terminal as TerminalIcon } from "lucide-react";
+import { useInView } from "framer-motion";
 import { commands } from "@/lib/terminal/commands";
 import { parseCommand, autocompleteCommand } from "@/lib/terminal/parser";
 import { TerminalOutput, LogEntry } from "./TerminalOutput";
@@ -18,12 +19,25 @@ export const Terminal: React.FC = () => {
   const [showCursor, setShowCursor] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
+  const [hasBooted, setHasBooted] = useState(false);
+  const [amount, setAmount] = useState(0.4);
+
   const activeTimers = useRef<any[]>([]);
   const shouldRefocus = useRef(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalBodyRef = useRef<HTMLDivElement>(null);
   const inputLineRef = useRef<HTMLDivElement>(null);
+  const terminalRef = useRef<HTMLDivElement>(null);
+
+  // Set visibility threshold depending on mobile vs desktop
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setAmount(window.innerWidth < 768 ? 0.25 : 0.4);
+    }
+  }, []);
+
+  const isInView = useInView(terminalRef, { once: true, amount });
 
   // Clear active timers on unmount to prevent leaks
   useEffect(() => {
@@ -34,14 +48,15 @@ export const Terminal: React.FC = () => {
 
   // Refocus input automatically after execution completes
   useEffect(() => {
-    if (!isExecuting && shouldRefocus.current) {
+    if (hasBooted && !isExecuting && shouldRefocus.current) {
       inputRef.current?.focus();
       shouldRefocus.current = false;
     }
-  }, [isExecuting]);
+  }, [isExecuting, hasBooted]);
 
   // Focus the terminal input when clicking anywhere on the terminal box
   const handleTerminalClick = () => {
+    if (!hasBooted) return;
     inputRef.current?.focus();
     setTimeout(() => {
       inputLineRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -49,6 +64,7 @@ export const Terminal: React.FC = () => {
   };
 
   const handleFocus = () => {
+    if (!hasBooted) return;
     setIsFocused(true);
     setTimeout(() => {
       inputLineRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -70,58 +86,80 @@ export const Terminal: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Startup welcome screen animation (runs once per browser session)
+  // Boot animation sequence when terminal is scrolled into view
   useEffect(() => {
-    const welcomeLines = [
-      "Initializing portfolio...",
-      "Loading developer profile...",
-      "",
-      "Welcome Aditya.",
-      'Type "help" to get started.',
-      ""
-    ];
+    if (!isInView || hasBooted) return;
 
-    if (typeof window !== "undefined") {
-      const visited = sessionStorage.getItem("terminal_visited");
-
-      if (visited === "true") {
-        // Skip typing, render welcome immediately
-        setLogs([
-          {
-            id: "welcome-immediate",
-            directory: "~",
-            command: "",
-            output: welcomeLines
-          }
-        ]);
-      } else {
-        // Run sequential printing animation
-        sessionStorage.setItem("terminal_visited", "true");
-        
-        let count = 0;
-        const printLogs: string[] = [];
-
-        const interval = setInterval(() => {
-          if (count < welcomeLines.length) {
-            printLogs.push(welcomeLines[count]);
-            setLogs([
-              {
-                id: `welcome-${count}`,
-                directory: "~",
-                command: "",
-                output: [...printLogs]
-              }
-            ]);
-            count++;
-          } else {
-            clearInterval(interval);
-          }
-        }, 150);
-
-        return () => clearInterval(interval);
+    // 0ms: Initializing portfolio...
+    setLogs([
+      {
+        id: "boot-log",
+        directory: "~",
+        command: "",
+        output: ["Initializing portfolio..."]
       }
-    }
-  }, []);
+    ]);
+
+    // 600ms: Loading developer profile...
+    const timer1 = setTimeout(() => {
+      setLogs([
+        {
+          id: "boot-log",
+          directory: "~",
+          command: "",
+          output: ["Initializing portfolio...", "Loading developer profile..."]
+        }
+      ]);
+    }, 600);
+
+    // 1200ms: Welcome Aditya.
+    const timer2 = setTimeout(() => {
+      setLogs([
+        {
+          id: "boot-log",
+          directory: "~",
+          command: "",
+          output: [
+            "Initializing portfolio...",
+            "Loading developer profile...",
+            "",
+            "Welcome Aditya."
+          ]
+        }
+      ]);
+    }, 1200);
+
+    // 1800ms: Type "help" to get started.
+    const timer3 = setTimeout(() => {
+      setLogs([
+        {
+          id: "boot-log",
+          directory: "~",
+          command: "",
+          output: [
+            "Initializing portfolio...",
+            "Loading developer profile...",
+            "",
+            "Welcome Aditya.",
+            'Type "help" to get started.',
+            ""
+          ]
+        }
+      ]);
+    }, 1800);
+
+    // 2200ms: Enable input
+    const timer4 = setTimeout(() => {
+      setHasBooted(true);
+    }, 2200);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      clearTimeout(timer4);
+    };
+  }, [isInView, hasBooted]);
 
   // Execute a command directly
   const executeCommand = (cmdText: string) => {
@@ -368,6 +406,7 @@ export const Terminal: React.FC = () => {
 
   return (
     <div
+      ref={terminalRef}
       onClick={handleTerminalClick}
       className={cn(
         "w-full max-w-[1000px] h-[450px] md:h-[500px] max-h-[70dvh] md:max-h-none bg-card border shadow-2xl overflow-hidden font-mono leading-relaxed rounded-lg md:rounded-md cursor-text flex flex-col transition-colors duration-200 text-left",
@@ -388,21 +427,23 @@ export const Terminal: React.FC = () => {
       </div>
 
       {/* Mobile Quick Command Chips */}
-      <div className="flex md:hidden items-center gap-2 px-4 py-2 bg-[#0d0d0d] border-b border-border-subtle overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden select-none">
-        <span className="text-[10px] text-secondary-text/40 font-mono uppercase tracking-wider shrink-0">Quick:</span>
-        {["projects", "skills", "resume", "contact"].map((cmd) => (
-          <button
-            key={cmd}
-            onClick={(e) => {
-              e.stopPropagation(); // Avoid triggering terminal click focus
-              executeCommand(cmd);
-            }}
-            className="px-2.5 py-1 bg-card border border-border-subtle rounded text-[11px] text-accent font-mono hover:bg-card-alt shrink-0 active:scale-95 transition-transform cursor-pointer"
-          >
-            {cmd}
-          </button>
-        ))}
-      </div>
+      {hasBooted && (
+        <div className="flex md:hidden items-center gap-2 px-4 py-2 bg-[#0d0d0d] border-b border-border-subtle overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden select-none">
+          <span className="text-[10px] text-secondary-text/40 font-mono uppercase tracking-wider shrink-0">Quick:</span>
+          {["projects", "skills", "resume", "contact"].map((cmd) => (
+            <button
+              key={cmd}
+              onClick={(e) => {
+                e.stopPropagation(); // Avoid triggering terminal click focus
+                executeCommand(cmd);
+              }}
+              className="px-2.5 py-1 bg-card border border-border-subtle rounded text-[11px] text-accent font-mono hover:bg-card-alt shrink-0 active:scale-95 transition-transform cursor-pointer"
+            >
+              {cmd}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Terminal Body */}
       <div
@@ -412,50 +453,52 @@ export const Terminal: React.FC = () => {
         <TerminalOutput logs={logs} />
 
         {/* Input Prompter Row */}
-        <div ref={inputLineRef} className="flex items-center gap-2 mt-1">
-          <span className="text-secondary-text/60">aditya@portfolio:~{currentDirectory === "~" ? "" : "/" + currentDirectory}$</span>
-          
-          <div className="flex-1 relative flex items-center">
-            {isExecuting ? (
-              <span className="text-secondary-text/50 font-mono select-none">
-                processing...
-              </span>
-            ) : rawInput === "" && !isFocused ? (
-              <span className="text-secondary-text/50 font-mono select-none">
-                Click terminal to start typing...
-              </span>
-            ) : (
-              <span className="font-semibold text-[#F5F5F5] whitespace-pre break-all">
-                {rawInput}
-                {isFocused && (
-                  <span 
-                    className="text-accent select-none ml-0.5 font-bold" 
-                    style={{ animation: 'blink 1s step-start infinite' }}
-                  >
-                    |
-                  </span>
-                )}
-              </span>
-            )}
+        {hasBooted && (
+          <div ref={inputLineRef} className="flex items-center gap-2 mt-1">
+            <span className="text-secondary-text/60">aditya@portfolio:~{currentDirectory === "~" ? "" : "/" + currentDirectory}$</span>
+            
+            <div className="flex-1 relative flex items-center">
+              {isExecuting ? (
+                <span className="text-secondary-text/50 font-mono select-none">
+                  processing...
+                </span>
+              ) : rawInput === "" && !isFocused ? (
+                <span className="text-secondary-text/50 font-mono select-none">
+                  Click terminal to start typing...
+                </span>
+              ) : (
+                <span className="font-semibold text-[#F5F5F5] whitespace-pre break-all">
+                  {rawInput}
+                  {isFocused && (
+                    <span 
+                      className="text-accent select-none ml-0.5 font-bold" 
+                      style={{ animation: 'blink 1s step-start infinite' }}
+                    >
+                      |
+                    </span>
+                  )}
+                </span>
+              )}
 
-            {/* Hidden Input field capturing native keystrokes */}
-            <input
-              ref={inputRef}
-              type="text"
-              value={rawInput}
-              onChange={(e) => setRawInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onFocus={handleFocus}
-              onBlur={() => setIsFocused(false)}
-              disabled={isExecuting}
-              className="opacity-0 absolute inset-0 w-full h-full cursor-text outline-none border-none select-none pointer-events-none"
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck="false"
-            />
+              {/* Hidden Input field capturing native keystrokes */}
+              <input
+                ref={inputRef}
+                type="text"
+                value={rawInput}
+                onChange={(e) => setRawInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onFocus={handleFocus}
+                onBlur={() => setIsFocused(false)}
+                disabled={isExecuting}
+                className="opacity-0 absolute inset-0 w-full h-full cursor-text outline-none border-none select-none pointer-events-none"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck="false"
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
