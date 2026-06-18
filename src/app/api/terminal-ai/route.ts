@@ -60,7 +60,11 @@ export async function POST(req: NextRequest) {
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => {
+      if (!controller.signal.aborted) {
+        controller.abort("timeout");
+      }
+    }, 8000);
 
     try {
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {

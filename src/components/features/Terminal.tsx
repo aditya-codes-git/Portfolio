@@ -276,7 +276,11 @@ export const Terminal: React.FC = () => {
               sessionStorage.setItem("terminal_ai_count", (count + 1).toString());
 
               const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 8000);
+              const timeoutId = setTimeout(() => {
+                if (!controller.signal.aborted) {
+                  controller.abort("timeout");
+                }
+              }, 8000);
 
               try {
                 const response = await fetch("/api/terminal-ai", {
