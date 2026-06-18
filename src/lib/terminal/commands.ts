@@ -58,7 +58,11 @@ export const commands: CommandRegistry = {
         "",
         "Navigation:",
         "  open projects - Go to projects portfolio page",
-        "  project <name>- Open detail page for a specific project"
+        "  project <name>- Open detail page for a specific project",
+        "",
+        "Terminal:",
+        "  theme         - List or switch terminal themes"
+
       ]
     })
   },

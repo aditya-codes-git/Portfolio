@@ -43,7 +43,7 @@ export const Contact: React.FC = () => {
           <div className="lg:col-span-5 space-y-6">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-foreground tracking-tight">
-                Let's discuss systems & software.
+                Let&apos;s discuss systems & software.
               </h3>
               <p className="text-sm text-secondary-text leading-relaxed">
                 Whether you have an internship opportunity, a project proposal, or want to discuss competitive programming, feel free to send a message.
@@ -69,7 +69,7 @@ export const Contact: React.FC = () => {
                 href="https://github.com/aditya-codes-git"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-sm bg-card border border-border-subtle flex items-center justify-center text-secondary-text hover:text-foreground transition-colors"
+                className="w-9 h-9 rounded-sm bg-card-alt border border-border-subtle flex items-center justify-center text-secondary-text hover:text-foreground transition-colors"
                 aria-label="GitHub"
               >
                 <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -81,7 +81,7 @@ export const Contact: React.FC = () => {
                 href="https://linkedin.com/in/aditya-pharande"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-sm bg-card border border-border-subtle flex items-center justify-center text-secondary-text hover:text-foreground transition-colors"
+                className="w-9 h-9 rounded-sm bg-card-alt border border-border-subtle flex items-center justify-center text-secondary-text hover:text-foreground transition-colors"
                 aria-label="LinkedIn"
               >
                 <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -94,7 +94,7 @@ export const Contact: React.FC = () => {
                 href="https://twitter.com/adityapharande"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-sm bg-card border border-border-subtle flex items-center justify-center text-secondary-text hover:text-foreground transition-colors"
+                className="w-9 h-9 rounded-sm bg-card-alt border border-border-subtle flex items-center justify-center text-secondary-text hover:text-foreground transition-colors"
                 aria-label="Twitter"
               >
                 <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -120,7 +120,7 @@ export const Contact: React.FC = () => {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="Aditya"
-                      className="w-full px-3 py-2 text-sm bg-[#050505] border border-border-subtle rounded-sm text-foreground placeholder-secondary-text/30 focus:outline-none focus:border-accent transition-colors font-mono"
+                      className="w-full px-3 py-2 text-sm bg-card-alt border border-border-subtle rounded-sm text-foreground placeholder-secondary-text/30 focus:outline-none focus:border-accent transition-colors font-mono"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -134,7 +134,7 @@ export const Contact: React.FC = () => {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="aditya@example.com"
-                      className="w-full px-3 py-2 text-sm bg-[#050505] border border-border-subtle rounded-sm text-foreground placeholder-secondary-text/30 focus:outline-none focus:border-accent transition-colors font-mono"
+                      className="w-full px-3 py-2 text-sm bg-card-alt border border-border-subtle rounded-sm text-foreground placeholder-secondary-text/30 focus:outline-none focus:border-accent transition-colors font-mono"
                     />
                   </div>
                 </div>
@@ -150,7 +150,7 @@ export const Contact: React.FC = () => {
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     placeholder="Hello, let's connect..."
-                    className="w-full px-3 py-2 text-sm bg-[#050505] border border-border-subtle rounded-sm text-foreground placeholder-secondary-text/30 focus:outline-none focus:border-accent transition-colors font-mono resize-none"
+                    className="w-full px-3 py-2 text-sm bg-card-alt border border-border-subtle rounded-sm text-foreground placeholder-secondary-text/30 focus:outline-none focus:border-accent transition-colors font-mono resize-none"
                   />
                 </div>
 

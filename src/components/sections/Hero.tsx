@@ -45,25 +45,25 @@ export const Hero: React.FC = () => {
   return (
     <section className="relative min-h-[calc(100dvh-4rem)] flex flex-col justify-start items-center pt-8 pb-20 lg:pt-12 lg:pb-32 overflow-hidden text-center">
       {/* Background radial highlight */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-accent/3 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-accent/5 rounded-full blur-[140px] pointer-events-none" />
 
       {/* Subtle developer grid background */}
       <div 
-        className="absolute inset-0 opacity-[0.03] pointer-events-none" 
+        className="absolute inset-0 opacity-[0.04] pointer-events-none" 
         style={{
           backgroundImage: `
-            linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
+            linear-gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 1px, transparent 1px)
           `,
           backgroundSize: '40px 40px',
         }}
       />
 
       {/* Decorative faint background text */}
-      <div className="absolute top-16 left-8 font-mono text-[10px] text-foreground/[0.03] select-none pointer-events-none hidden md:block">
-        <code>const developer = "Aditya";</code>
+      <div className="absolute top-16 left-8 font-mono text-[10px] text-foreground/[0.04] select-none pointer-events-none hidden md:block">
+        <code>const developer = &quot;Aditya&quot;;</code>
       </div>
-      <div className="absolute bottom-24 right-8 font-mono text-[10px] text-foreground/[0.03] select-none pointer-events-none hidden md:block">
+      <div className="absolute bottom-24 right-8 font-mono text-[10px] text-foreground/[0.04] select-none pointer-events-none hidden md:block">
         <code>console.log(developer.getProjects());</code>
       </div>
       
@@ -74,7 +74,7 @@ export const Hero: React.FC = () => {
           {/* System Status Badge */}
           <motion.div 
             {...statusFadeProps}
-            className="inline-flex items-center gap-2 px-3 py-1 bg-card border border-border-subtle rounded-full w-fit select-none"
+            className="inline-flex items-center gap-2 px-3 py-1 bg-card border border-border-subtle rounded-full w-fit select-none shadow-sm"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
             <span className="text-[11px] font-mono tracking-tight text-secondary-text">
@@ -101,7 +101,7 @@ export const Hero: React.FC = () => {
             {...descFadeProps}
             className="text-center max-w-2xl mt-4 flex flex-col items-center gap-4"
           >
-            <p className="text-lg sm:text-xl font-medium tracking-tight text-[#F5F5F5] leading-relaxed">
+            <p className="text-lg sm:text-xl font-medium tracking-tight text-foreground leading-relaxed">
               Full Stack Developer building <span className="text-accent font-semibold">developer tools</span>, <span className="text-accent font-semibold">backend systems</span>, and <span className="text-accent font-semibold">interactive web experiences</span>.
             </p>
             <p className="text-secondary-text text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
@@ -115,11 +115,11 @@ export const Hero: React.FC = () => {
             className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full mt-12"
           >
             {/* Card 1 */}
-            <div className="bg-card border border-border-subtle p-5 rounded-lg text-left flex flex-col justify-between min-h-[120px] hover:border-accent/30 transition-all duration-300 group">
+            <div className="bg-card border border-border-subtle p-5 rounded-lg text-left flex flex-col justify-between min-h-[120px] hover:border-accent/30 hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition-all duration-300 group">
               <span className="font-mono text-xs text-secondary-text/40 group-hover:text-accent/50 transition-colors">01</span>
               <div className="mt-4">
                 <span className="font-mono text-[9px] uppercase tracking-wider text-secondary-text/50 block mb-1">Engineering</span>
-                <span className="text-sm font-medium text-[#F5F5F5] leading-tight block">
+                <span className="text-sm font-medium text-foreground leading-tight block">
                   Full Stack Intern <br />
                   <span className="text-secondary-text font-normal">@ Enginow</span>
                 </span>
@@ -127,11 +127,11 @@ export const Hero: React.FC = () => {
             </div>
 
             {/* Card 2 */}
-            <div className="bg-card border border-border-subtle p-5 rounded-lg text-left flex flex-col justify-between min-h-[120px] hover:border-accent/30 transition-all duration-300 group">
+            <div className="bg-card border border-border-subtle p-5 rounded-lg text-left flex flex-col justify-between min-h-[120px] hover:border-accent/30 hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition-all duration-300 group">
               <span className="font-mono text-xs text-secondary-text/40 group-hover:text-accent/50 transition-colors">02</span>
               <div className="mt-4">
                 <span className="font-mono text-[9px] uppercase tracking-wider text-secondary-text/50 block mb-1">Community</span>
-                <span className="text-sm font-medium text-[#F5F5F5] leading-tight block">
+                <span className="text-sm font-medium text-foreground leading-tight block">
                   President <br />
                   <span className="text-secondary-text font-normal">CSI RSCOE</span>
                 </span>
@@ -139,11 +139,11 @@ export const Hero: React.FC = () => {
             </div>
 
             {/* Card 3 */}
-            <div className="bg-card border border-border-subtle p-5 rounded-lg text-left flex flex-col justify-between min-h-[120px] hover:border-accent/30 transition-all duration-300 group">
+            <div className="bg-card border border-border-subtle p-5 rounded-lg text-left flex flex-col justify-between min-h-[120px] hover:border-accent/30 hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition-all duration-300 group">
               <span className="font-mono text-xs text-secondary-text/40 group-hover:text-accent/50 transition-colors">03</span>
               <div className="mt-4">
                 <span className="font-mono text-[9px] uppercase tracking-wider text-secondary-text/50 block mb-1">Learning</span>
-                <span className="text-sm font-medium text-[#F5F5F5] leading-tight block">
+                <span className="text-sm font-medium text-foreground leading-tight block">
                   Systems + <br />
                   <span className="text-secondary-text font-normal">Algorithms</span>
                 </span>
@@ -165,7 +165,7 @@ export const Hero: React.FC = () => {
               </Button>
             </div>
             <span className="text-[11px] font-mono text-secondary-text/40 select-none">
-              or type <code className="text-accent/70 font-semibold font-mono">"projects"</code> in terminal below
+              or type <code className="text-accent/70 font-semibold font-mono">&quot;projects&quot;</code> in terminal below
             </span>
           </motion.div>
 

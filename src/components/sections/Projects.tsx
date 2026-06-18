@@ -23,7 +23,7 @@ export const Projects: React.FC = () => {
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className="group"
             >
-              <Card className="h-full p-6 bg-card flex flex-col justify-between rounded-md transition-colors duration-300 group-hover:border-accent/30 group-hover:shadow-[0_4px_20px_rgba(0,217,163,0.05)]">
+              <Card className="h-full p-6 bg-card flex flex-col justify-between rounded-md transition-colors duration-300 group-hover:border-accent/30 group-hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
                 <div className="space-y-4">
                   {/* Header */}
                   <div className="flex items-start justify-between gap-4">

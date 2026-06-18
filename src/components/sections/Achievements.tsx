@@ -32,10 +32,10 @@ export const Achievements: React.FC = () => {
           {achievements.map((ach) => (
             <Card
               key={ach.id}
-              className="p-5 bg-card flex flex-col justify-between rounded-md h-full hover:border-[#00D9A3]/30"
+              className="p-5 bg-card flex flex-col justify-between rounded-md h-full hover:border-accent/30"
             >
               <div className="space-y-4">
-                <div className="w-9 h-9 rounded-sm bg-[#111111] border border-border-subtle flex items-center justify-center">
+                <div className="w-9 h-9 rounded-sm bg-card-alt border border-border-subtle flex items-center justify-center">
                   {getAchievementIcon(ach.id)}
                 </div>
                 <div className="space-y-2">

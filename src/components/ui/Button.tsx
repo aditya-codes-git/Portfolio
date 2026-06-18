@@ -14,10 +14,10 @@ export const Button = React.forwardRef<HTMLButtonElement & HTMLAnchorElement, Bu
     const baseStyles = "inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-accent rounded-sm active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:pointer-events-none";
 
     const variants = {
-      primary: "bg-[#F5F5F5] text-[#050505] hover:bg-[#E5E5E5] shadow-[0_1px_2px_rgba(255,255,255,0.05)_inset]",
-      secondary: "bg-[#0D0D0D] text-[#F5F5F5] border border-border-subtle hover:bg-[#111111] hover:border-white/15",
-      accent: "bg-[#00D9A3]/5 text-[#00D9A3] border border-[#00D9A3]/20 hover:bg-[#00D9A3]/10 hover:border-[#00D9A3]/40",
-      ghost: "text-[#A3A3A3] hover:text-[#F5F5F5] hover:bg-[#0D0D0D]",
+      primary: "bg-foreground text-background hover:bg-foreground/90 shadow-sm",
+      secondary: "bg-card text-foreground border border-border-subtle hover:bg-card-alt hover:border-foreground/15",
+      accent: "bg-accent/5 text-accent border border-accent/20 hover:bg-accent/10 hover:border-accent/40",
+      ghost: "text-secondary-text hover:text-foreground hover:bg-foreground/5",
     };
 
     const sizes = {

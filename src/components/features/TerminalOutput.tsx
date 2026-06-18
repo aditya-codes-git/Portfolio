@@ -18,14 +18,21 @@ export const TerminalOutput: React.FC<TerminalOutputProps> = ({ logs }) => {
         <div key={log.id} className="space-y-1.5">
           {/* Prompt command line */}
           {log.command && (
-            <div className="flex items-center gap-2 text-[#F5F5F5]">
-              <span className="text-secondary-text/60">aditya@portfolio:~{log.directory === "~" ? "" : "/" + log.directory}$</span>
-              <span className="font-semibold text-accent">{log.command}</span>
+            <div className="flex items-center gap-2" style={{ color: "var(--term-fg)" }}>
+              <span style={{ color: "var(--term-secondary)", opacity: 0.6 }}>
+                aditya@portfolio:~{log.directory === "~" ? "" : "/" + log.directory}$
+              </span>
+              <span className="font-semibold" style={{ color: "var(--term-accent)" }}>
+                {log.command}
+              </span>
             </div>
           )}
 
           {/* Render output based on type */}
-          <div className="text-secondary-text pl-2 leading-relaxed break-words [overflow-wrap:anywhere] [word-break:break-word]">
+          <div
+            className="pl-2 leading-relaxed break-words [overflow-wrap:anywhere] [word-break:break-word]"
+            style={{ color: "var(--term-secondary)" }}
+          >
             {React.isValidElement(log.output) ? (
               log.output
             ) : Array.isArray(log.output) ? (

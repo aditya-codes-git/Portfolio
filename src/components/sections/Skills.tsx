@@ -44,7 +44,7 @@ export const Skills: React.FC = () => {
                 {category.items.map((skill) => (
                   <span
                     key={skill}
-                    className="px-2.5 py-1 text-xs font-mono bg-[#111111] border border-border-subtle hover:border-accent/30 text-secondary-text hover:text-foreground transition-all duration-200 rounded-sm"
+                    className="px-2.5 py-1 text-xs font-mono bg-card-alt border border-border-subtle hover:border-accent/30 text-secondary-text hover:text-foreground transition-all duration-200 rounded-sm"
                   >
                     {skill}
                   </span>

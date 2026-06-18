@@ -34,7 +34,7 @@ export function autocompleteCommand(input: string, currentDirectory: string): st
 
   // Case 1: Completing the primary command name
   if (parts.length === 1 && !isTrailingSpace) {
-    const cmdKeys = Object.keys(commands);
+    const cmdKeys = [...Object.keys(commands), "theme"];
     const matches = cmdKeys.filter((key) => key.startsWith(input.toLowerCase()));
 
     if (matches.length === 1) {
@@ -85,6 +85,18 @@ export function autocompleteCommand(input: string, currentDirectory: string): st
     }
     if (matches.length > 1) {
       return `project ${matches[0]}`;
+    }
+    return input;
+  }
+
+  // theme command completion
+  if (cmd === "theme") {
+    const themes = ["classic", "light", "contrast", "matrix"];
+    const targetArg = isTrailingSpace ? "" : lastPart;
+    const matches = themes.filter((t) => t.startsWith(targetArg.toLowerCase()));
+
+    if (matches.length === 1) {
+      return `theme ${matches[0]}`;
     }
     return input;
   }

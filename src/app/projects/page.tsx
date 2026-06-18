@@ -24,7 +24,7 @@ export default function ProjectsPage() {
       
       <main className="flex-grow bg-background py-16 sm:py-24 relative overflow-hidden">
         {/* Background radial highlight */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/3 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="max-w-6xl mx-auto px-6 w-full space-y-12">
           {/* Header */}
@@ -81,7 +81,7 @@ export default function ProjectsPage() {
                         {project.tech.map((t) => (
                           <span
                             key={t}
-                            className="px-2.5 py-1 text-xs font-mono bg-[#111] border border-border-subtle text-secondary-text rounded-xs uppercase tracking-tight"
+                            className="px-2.5 py-1 text-xs font-mono bg-card-alt border border-border-subtle text-secondary-text rounded-xs uppercase tracking-tight"
                           >
                             {t}
                           </span>

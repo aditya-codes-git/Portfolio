@@ -3,7 +3,7 @@ import { Mail } from "lucide-react";
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="border-t border-border-subtle bg-background py-12 px-6">
+    <footer className="border-t border-border-subtle bg-card py-12 px-6">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
         
         {/* Left Side */}

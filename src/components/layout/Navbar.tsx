@@ -63,13 +63,13 @@ export const Navbar: React.FC = () => {
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-300 border-b",
         scrolled
-          ? "bg-background/80 backdrop-blur-md border-border-subtle"
+          ? "bg-background/80 backdrop-blur-md border-border-subtle shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
           : "bg-transparent border-transparent"
       )}
     >
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2 font-mono text-sm tracking-tight font-medium hover:text-[#00D9A3] transition-colors">
+        <a href="#" className="flex items-center gap-2 font-mono text-sm tracking-tight font-medium hover:text-accent transition-colors">
           <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
           <span>aditya.pharande</span>
         </a>
@@ -113,7 +113,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Menu Dropdown */}
       {isOpen && (
-        <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b border-border-subtle px-6 py-6 flex flex-col gap-4 shadow-xl">
+        <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b border-border-subtle px-6 py-6 flex flex-col gap-4 shadow-lg">
           {NAV_ITEMS.map((item) => {
             const isActive = activeSection === item.href.slice(1);
             return (
@@ -122,7 +122,7 @@ export const Navbar: React.FC = () => {
                 href={item.href}
                 onClick={() => setIsOpen(false)}
                 className={cn(
-                  "text-sm font-mono py-2 border-b border-white/5 tracking-tight uppercase transition-colors",
+                  "text-sm font-mono py-2 border-b border-foreground/5 tracking-tight uppercase transition-colors",
                   isActive ? "text-accent" : "text-secondary-text hover:text-foreground"
                 )}
               >

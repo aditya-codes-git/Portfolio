@@ -10,6 +10,7 @@ import { TerminalOutput, LogEntry } from "./TerminalOutput";
 import { cn } from "@/lib/utils";
 import { navigateFromTerminal } from "@/lib/navigation/terminalNavigation";
 import { TerminalWindowControls } from "./TerminalWindowControls";
+import { getStoredTheme, setStoredTheme, terminalThemes, TerminalTheme } from "@/lib/terminal/themes";
 
 export const Terminal: React.FC = () => {
   const router = useRouter();
@@ -23,6 +24,7 @@ export const Terminal: React.FC = () => {
   const [isExecuting, setIsExecuting] = useState(false);
   const [hasBooted, setHasBooted] = useState(false);
   const [amount, setAmount] = useState(0.4);
+  const [currentTheme, setCurrentTheme] = useState<TerminalTheme>(terminalThemes.classic);
   const [windowState, setWindowState] = useState({
     minimized: false,
     closed: false,
@@ -36,6 +38,11 @@ export const Terminal: React.FC = () => {
   const terminalBodyRef = useRef<HTMLDivElement>(null);
   const inputLineRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
+
+  // Load stored theme on mount
+  useEffect(() => {
+    setCurrentTheme(getStoredTheme());
+  }, []);
 
   // Handle ESC key globally to exit fullscreen
   useEffect(() => {
@@ -332,6 +339,37 @@ export const Terminal: React.FC = () => {
       };
 
       try {
+        // Handle the theme command locally in Terminal
+        if (cmdName === "theme") {
+          await sleep(150);
+          if (!args[0]) {
+            const themeList = Object.values(terminalThemes).map(
+              (t) => `  ${t.id === currentTheme.id ? "● " : "  "}${t.id.padEnd(12)} ${t.description}`
+            );
+            updateLogOutput([
+              "Available themes:",
+              "",
+              ...themeList,
+              "",
+              'Usage: theme <name>'
+            ]);
+          } else {
+            const newTheme = setStoredTheme(args[0].toLowerCase());
+            if (newTheme) {
+              setCurrentTheme(newTheme);
+              updateLogOutput([`Theme switched to ${newTheme.name}.`]);
+            } else {
+              const available = Object.keys(terminalThemes).join(", ");
+              updateLogOutput([
+                `Unknown theme: ${args[0]}`,
+                `Available: ${available}`
+              ]);
+            }
+          }
+          setIsExecuting(false);
+          return;
+        }
+
         if (cmdName === "projects") {
           updateLogOutput(["Fetching projects..."]);
           await sleep(500);
@@ -410,20 +448,41 @@ export const Terminal: React.FC = () => {
               updateLogOutput(res.output);
             }
           } else {
-            // Rate limiting - maximum 10 requests per session
-            const limit = 10;
-            const count = parseInt(sessionStorage.getItem("terminal_ai_count") || "0", 10);
-            if (count >= limit) {
+            // Rolling rate limit: allow 20 requests per 10 minutes
+            const limit = 20;
+            const windowMs = 10 * 60 * 1000;
+            const now = Date.now();
+            let requests: number[] = [];
+
+            try {
+              const stored = localStorage.getItem("terminal_ai_requests");
+              if (stored) {
+                requests = JSON.parse(stored);
+              }
+            } catch (e) {
+              console.error("Failed to read rate limit data:", e);
+            }
+
+            // 1. Remove timestamps older than 10 minutes
+            requests = requests.filter((ts) => now - ts < windowMs);
+
+            // 2. Check remaining count
+            if (requests.length >= limit) {
               await sleep(150);
               updateLogOutput([
-                "AI quota exhausted. My tiny brain needs rest ☕.",
-                "Try normal commands like 'projects'."
+                "My circuits need a short cooldown ☕ Try again soon."
               ]);
               setIsExecuting(false);
               return;
             }
 
-            sessionStorage.setItem("terminal_ai_count", (count + 1).toString());
+            // Allow request and save current timestamp
+            requests.push(now);
+            try {
+              localStorage.setItem("terminal_ai_requests", JSON.stringify(requests));
+            } catch (e) {
+              console.error("Failed to save rate limit data:", e);
+            }
 
             const controller = new AbortController();
             const timeoutId = setTimeout(() => {
@@ -510,12 +569,26 @@ export const Terminal: React.FC = () => {
     }
   };
 
+  // Terminal CSS variables derived from theme
+  const terminalStyle: React.CSSProperties = {
+    fontSize: "clamp(12px, 2vw, 15px)",
+    // @ts-ignore - CSS custom properties
+    "--term-bg": currentTheme.colors.bg,
+    "--term-bg-header": currentTheme.colors.bgHeader,
+    "--term-fg": currentTheme.colors.fg,
+    "--term-accent": currentTheme.colors.accent,
+    "--term-secondary": currentTheme.colors.secondary,
+    "--term-border": currentTheme.colors.border,
+    "--term-card-bg": currentTheme.colors.cardBg,
+    "--term-input-bg": currentTheme.colors.inputBg,
+  } as React.CSSProperties;
+
   if (windowState.closed) {
     return (
       <div className="w-full max-w-[1000px] flex justify-center items-center py-8">
         <button
           onClick={handleRestore}
-          className="px-5 py-3 bg-[#111111]/85 border border-[#222222] hover:border-[#00c291]/50 text-secondary-text hover:text-[#00D9A3] font-mono text-xs rounded-md transition-all active:scale-95 cursor-pointer shadow-lg"
+          className="px-5 py-3 bg-[#111111]/85 border border-[#222222] hover:border-[#00c291]/50 text-[#A3A3A3] hover:text-[#00D9A3] font-mono text-xs rounded-md transition-all active:scale-95 cursor-pointer shadow-lg"
         >
           &gt; restore terminal session
         </button>
@@ -535,21 +608,24 @@ export const Terminal: React.FC = () => {
         id="terminal"
         ref={terminalRef}
         onClick={handleTerminalClick}
+        style={terminalStyle}
         className={cn(
-          "bg-card border shadow-2xl overflow-hidden font-mono leading-relaxed transition-all duration-300 ease-out text-left flex flex-col",
-          isFocused ? "border-accent/30" : "border-border-subtle",
+          "border shadow-2xl overflow-hidden font-mono leading-relaxed transition-all duration-300 ease-out text-left flex flex-col",
           windowState.fullscreen
             ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] md:w-[90vw] h-[85dvh] md:h-[85vh] max-w-none max-h-none z-50 rounded-lg scale-100"
             : "w-full max-w-[1000px] h-auto rounded-lg md:rounded-md scale-100"
         )}
-        style={{ fontSize: "clamp(12px, 2vw, 15px)" }}
       >
         {/* Terminal Title Bar */}
         <div
           onClick={handleHeaderClick}
+          style={{
+            backgroundColor: "var(--term-bg-header)",
+            borderColor: "var(--term-border)",
+          }}
           className={cn(
-            "flex items-center justify-between px-4 py-3 bg-[#080808] border-b border-border-subtle select-none",
-            windowState.minimized ? "cursor-pointer hover:bg-[#0c0c0c]" : ""
+            "flex items-center justify-between px-4 py-3 border-b select-none",
+            windowState.minimized ? "cursor-pointer" : ""
           )}
         >
           <TerminalWindowControls
@@ -558,17 +634,28 @@ export const Terminal: React.FC = () => {
             onFullscreen={handleFullscreen}
           />
           <div className="flex items-center gap-1.5">
-            <span className="text-xs text-secondary-text/50 select-none block md:hidden">
+            <span
+              style={{ color: "var(--term-secondary)", opacity: 0.5 }}
+              className="text-xs select-none block md:hidden"
+            >
               terminal {windowState.minimized && "[minimized]"}
             </span>
-            <span className="text-xs text-secondary-text/50 select-none hidden md:block">
+            <span
+              style={{ color: "var(--term-secondary)", opacity: 0.5 }}
+              className="text-xs select-none hidden md:block"
+            >
               aditya@workstation:~{currentDirectory === "~" ? "" : "/" + currentDirectory} {windowState.minimized && "[minimized]"}
             </span>
           </div>
           {windowState.fullscreen ? (
-            <span className="text-[10px] font-mono text-secondary-text/40 animate-pulse">ESC to exit</span>
+            <span
+              style={{ color: "var(--term-secondary)", opacity: 0.4 }}
+              className="text-[10px] font-mono animate-pulse"
+            >
+              ESC to exit
+            </span>
           ) : (
-            <TerminalIcon className="w-3.5 h-3.5 text-secondary-text/30" />
+            <TerminalIcon className="w-3.5 h-3.5" style={{ color: "var(--term-secondary)", opacity: 0.3 }} />
           )}
         </div>
 
@@ -583,8 +670,19 @@ export const Terminal: React.FC = () => {
             >
               {/* Mobile Quick Command Chips */}
               {hasBooted && (
-                <div className="flex md:hidden items-center gap-2 px-4 py-2 bg-[#0d0d0d] border-b border-border-subtle overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden select-none">
-                  <span className="text-[10px] text-secondary-text/40 font-mono uppercase tracking-wider shrink-0">Quick:</span>
+                <div
+                  style={{
+                    backgroundColor: "var(--term-bg)",
+                    borderColor: "var(--term-border)",
+                  }}
+                  className="flex md:hidden items-center gap-2 px-4 py-2 border-b overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden select-none"
+                >
+                  <span
+                    style={{ color: "var(--term-secondary)", opacity: 0.4 }}
+                    className="text-[10px] font-mono uppercase tracking-wider shrink-0"
+                  >
+                    Quick:
+                  </span>
                   {["projects", "skills", "resume", "contact"].map((cmd) => (
                     <button
                       key={cmd}
@@ -592,7 +690,12 @@ export const Terminal: React.FC = () => {
                         e.stopPropagation(); // Avoid triggering terminal click focus
                         executeCommand(cmd);
                       }}
-                      className="px-2.5 py-1 bg-card border border-border-subtle rounded text-[11px] text-accent font-mono hover:bg-card-alt shrink-0 active:scale-95 transition-transform cursor-pointer"
+                      style={{
+                        backgroundColor: "var(--term-card-bg)",
+                        borderColor: "var(--term-border)",
+                        color: "var(--term-accent)",
+                      }}
+                      className="px-2.5 py-1 border rounded text-[11px] font-mono shrink-0 active:scale-95 transition-transform cursor-pointer"
                     >
                       {cmd}
                     </button>
@@ -603,8 +706,12 @@ export const Terminal: React.FC = () => {
               {/* Terminal Body */}
               <div
                 ref={terminalBodyRef}
+                style={{
+                  backgroundColor: "var(--term-bg)",
+                  color: "var(--term-fg)",
+                }}
                 className={cn(
-                  "p-4 md:p-5 overflow-y-auto bg-card text-[#F5F5F5] scroll-smooth flex flex-col gap-2",
+                  "p-4 md:p-5 overflow-y-auto scroll-smooth flex flex-col gap-2",
                   windowState.fullscreen
                     ? "flex-grow"
                     : "h-[400px] md:h-[450px] max-h-[calc(70dvh-44px)] md:max-h-none"
@@ -615,24 +722,35 @@ export const Terminal: React.FC = () => {
                 {/* Input Prompter Row */}
                 {hasBooted && (
                   <div ref={inputLineRef} className="flex items-center gap-2 mt-1">
-                    <span className="text-secondary-text/60">aditya@portfolio:~{currentDirectory === "~" ? "" : "/" + currentDirectory}$</span>
+                    <span style={{ color: "var(--term-secondary)", opacity: 0.6 }}>
+                      aditya@portfolio:~{currentDirectory === "~" ? "" : "/" + currentDirectory}$
+                    </span>
                     
                     <div className="flex-1 relative flex items-center">
                       {isExecuting ? (
-                        <span className="text-secondary-text/50 font-mono select-none">
+                        <span
+                          style={{ color: "var(--term-secondary)", opacity: 0.5 }}
+                          className="font-mono select-none"
+                        >
                           processing...
                         </span>
                       ) : rawInput === "" && !isFocused ? (
-                        <span className="text-secondary-text/50 font-mono select-none">
+                        <span
+                          style={{ color: "var(--term-secondary)", opacity: 0.5 }}
+                          className="font-mono select-none"
+                        >
                           Click terminal to start typing...
                         </span>
                       ) : (
-                        <span className="font-semibold text-[#F5F5F5] whitespace-pre break-all">
+                        <span
+                          style={{ color: "var(--term-fg)" }}
+                          className="font-semibold whitespace-pre break-all"
+                        >
                           {rawInput}
                           {isFocused && (
                             <span 
-                              className="text-accent select-none ml-0.5 font-bold" 
-                              style={{ animation: 'blink 1s step-start infinite' }}
+                              style={{ color: "var(--term-accent)", animation: 'blink 1s step-start infinite' }}
+                              className="select-none ml-0.5 font-bold"
                             >
                               |
                             </span>

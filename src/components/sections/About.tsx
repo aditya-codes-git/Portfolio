@@ -41,7 +41,7 @@ export const About: React.FC = () => {
             const Icon = item.icon;
             return (
               <Card key={idx} className="p-6 bg-card flex flex-col gap-4 rounded-md">
-                <div className="w-10 h-10 rounded-sm bg-[#111] border border-border-subtle flex items-center justify-center text-accent">
+                <div className="w-10 h-10 rounded-sm bg-card-alt border border-border-subtle flex items-center justify-center text-accent">
                   <Icon className="w-5 h-5" />
                 </div>
                 <div className="space-y-1">
