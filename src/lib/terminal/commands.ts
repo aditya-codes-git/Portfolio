@@ -2,13 +2,18 @@ import React from "react";
 import { CommandRegistry } from "./types";
 import { projectDetails } from "@/data/projectDetails";
 import { TerminalProjectCard } from "@/components/features/TerminalProjectCard";
+import { navigateFromTerminal } from "@/lib/navigation/terminalNavigation";
 
 // Helper component to render project list in terminal
 const TerminalProjectsList: React.FC<{ router: any }> = ({ router }) => {
   const projectsList = Object.values(projectDetails);
 
   const handleNavigate = (slug: string) => {
-    router.push(`/projects/${slug}`);
+    navigateFromTerminal({
+      type: "route",
+      destination: `/projects/${slug}`,
+      router,
+    });
   };
 
   return React.createElement(
@@ -227,7 +232,11 @@ export const commands: CommandRegistry = {
 
       const slug = aliasMap[target];
       if (slug) {
-        context.router.push(`/projects/${slug}`);
+        navigateFromTerminal({
+          type: "route",
+          destination: `/projects/${slug}`,
+          router: context.router,
+        });
         const projectName = slug === "mini-redis" ? "Mini Redis" : slug === "testgen-ai" ? "TestGen AI" : slug.charAt(0).toUpperCase() + slug.slice(1);
         return { output: `Opening ${projectName}...` };
       }
@@ -247,7 +256,11 @@ export const commands: CommandRegistry = {
     execute: (context) => {
       const target = context.args[0];
       if (target === "projects") {
-        context.router.push("/projects");
+        navigateFromTerminal({
+          type: "route",
+          destination: "/projects",
+          router: context.router,
+        });
         return { output: "Opening projects page..." };
       }
       return { output: "Usage: open projects" };

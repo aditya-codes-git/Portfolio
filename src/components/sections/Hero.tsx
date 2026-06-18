@@ -173,6 +173,7 @@ export const Hero: React.FC = () => {
 
         {/* Centerpiece Interactive Terminal */}
         <motion.div
+          id="terminal"
           {...terminalFadeProps}
           className="w-full max-w-[1000px] mt-16 flex justify-center"
         >

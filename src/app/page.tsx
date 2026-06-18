@@ -13,6 +13,21 @@ import { Achievements } from "@/components/sections/Achievements";
 import { Contact } from "@/components/sections/Contact";
 
 export default function Home() {
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const scrollNeeded = sessionStorage.getItem("scroll_to_terminal");
+      if (scrollNeeded === "true") {
+        sessionStorage.removeItem("scroll_to_terminal");
+        setTimeout(() => {
+          const el = document.getElementById("terminal");
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, 300);
+      }
+    }
+  }, []);
+
   const fadeUpProps = {
     initial: { opacity: 0, y: 20 },
     whileInView: { opacity: 1, y: 0 },

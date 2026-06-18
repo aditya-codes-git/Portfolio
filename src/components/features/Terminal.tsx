@@ -8,6 +8,7 @@ import { commands } from "@/lib/terminal/commands";
 import { parseCommand, autocompleteCommand } from "@/lib/terminal/parser";
 import { TerminalOutput, LogEntry } from "./TerminalOutput";
 import { cn } from "@/lib/utils";
+import { navigateFromTerminal } from "@/lib/navigation/terminalNavigation";
 
 export const Terminal: React.FC = () => {
   const router = useRouter();
@@ -265,12 +266,19 @@ export const Terminal: React.FC = () => {
           await sleep(400);
           updateLogOutput(["Locating contact section...", "Scrolling..."]);
           await sleep(400);
-          context.scrollToContact();
+          navigateFromTerminal({
+            type: "section",
+            destination: "contact"
+          });
           updateLogOutput(["Locating contact section...", "Scrolling...", "Done."]);
         } else if (cmdName === "open" && args[0] === "projects") {
           updateLogOutput(["Opening projects page..."]);
           await sleep(800);
-          context.router.push("/projects");
+          navigateFromTerminal({
+            type: "route",
+            destination: "/projects",
+            router
+          });
         } else if (cmdName === "project") {
           const target = args[0]?.toLowerCase();
           const aliasMap: Record<string, string> = {
@@ -290,7 +298,11 @@ export const Terminal: React.FC = () => {
             await sleep(250);
             updateLogOutput(["Finding project...", "Loading architecture...", `Opening ${projectName} workspace...`]);
             await sleep(300);
-            context.router.push(`/projects/${slug}`);
+            navigateFromTerminal({
+              type: "route",
+              destination: `/projects/${slug}`,
+              router
+            });
           } else {
             await sleep(150);
             const res = commands.project.execute(context);
@@ -406,6 +418,7 @@ export const Terminal: React.FC = () => {
 
   return (
     <div
+      id="terminal"
       ref={terminalRef}
       onClick={handleTerminalClick}
       className={cn(
