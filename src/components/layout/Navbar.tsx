@@ -17,6 +17,7 @@ const NAV_ITEMS = [
 export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,7 +29,33 @@ export const Navbar: React.FC = () => {
     };
 
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    // Track active section via IntersectionObserver
+    const observerOptions = {
+      root: null,
+      rootMargin: "-30% 0px -50% 0px", // Triggers active state when section takes substantial screen area
+      threshold: 0.1,
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    const sections = ["about", "projects", "experience", "skills", "achievements", "contact"];
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      observer.disconnect();
+    };
   }, []);
 
   return (
@@ -49,15 +76,21 @@ export const Navbar: React.FC = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
-          {NAV_ITEMS.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              className="text-xs font-mono text-secondary-text hover:text-foreground transition-colors tracking-tight uppercase"
-            >
-              {item.label}
-            </a>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            const isActive = activeSection === item.href.slice(1);
+            return (
+              <a
+                key={item.label}
+                href={item.href}
+                className={cn(
+                  "text-xs font-mono transition-colors tracking-tight uppercase",
+                  isActive ? "text-accent" : "text-secondary-text hover:text-foreground"
+                )}
+              >
+                {item.label}
+              </a>
+            );
+          })}
           <Button
             href="#contact"
             variant="secondary"
@@ -81,16 +114,22 @@ export const Navbar: React.FC = () => {
       {/* Mobile Menu Dropdown */}
       {isOpen && (
         <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b border-border-subtle px-6 py-6 flex flex-col gap-4 shadow-xl">
-          {NAV_ITEMS.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              onClick={() => setIsOpen(false)}
-              className="text-sm font-mono text-secondary-text hover:text-foreground py-2 border-b border-white/5 tracking-tight uppercase"
-            >
-              {item.label}
-            </a>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            const isActive = activeSection === item.href.slice(1);
+            return (
+              <a
+                key={item.label}
+                href={item.href}
+                onClick={() => setIsOpen(false)}
+                className={cn(
+                  "text-sm font-mono py-2 border-b border-white/5 tracking-tight uppercase transition-colors",
+                  isActive ? "text-accent" : "text-secondary-text hover:text-foreground"
+                )}
+              >
+                {item.label}
+              </a>
+            );
+          })}
           <Button
             href="#contact"
             onClick={() => setIsOpen(false)}

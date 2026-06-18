@@ -5,7 +5,7 @@ import { Briefcase } from "lucide-react";
 
 export const Experience: React.FC = () => {
   return (
-    <section id="experience" className="py-20 border-t border-border-subtle bg-background">
+    <section id="experience" className="py-24 sm:py-32 border-t border-border-subtle bg-background">
       <div className="max-w-6xl mx-auto px-6">
         <SectionTitle
           label="History"

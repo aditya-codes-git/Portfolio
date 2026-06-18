@@ -7,58 +7,50 @@ import { Card } from "@/components/ui/Card";
 import { motion } from "framer-motion";
 
 export const Hero: React.FC = () => {
-  // Terminal typing animation states
   const [typedInput, setTypedInput] = useState("");
   const [terminalOutputs, setTerminalOutputs] = useState<string[]>([]);
-  const [phase, setPhase] = useState<"typing" | "outputs" | "idle">("typing");
+  const [showCursor, setShowCursor] = useState(true);
 
   useEffect(() => {
     const command = "whoami";
     let index = 0;
-    
-    // Phase 1: Typing command
-    const typingTimeout = setTimeout(() => {
-      const interval = setInterval(() => {
-        if (index < command.length) {
-          setTypedInput((prev) => prev + command[index]);
-          index++;
-        } else {
-          clearInterval(interval);
-          setPhase("outputs");
-        }
-      }, 150);
-      return () => clearInterval(interval);
-    }, 1000);
 
-    return () => clearTimeout(typingTimeout);
+    // Type the command character by character
+    const typingInterval = setInterval(() => {
+      if (index < command.length) {
+        setTypedInput(command.slice(0, index + 1));
+        index++;
+      } else {
+        clearInterval(typingInterval);
+
+        // Command finished typing. Show outputs sequentially.
+        const outputLines = [
+          "> full-stack developer",
+          "> problem solver",
+          "> builder"
+        ];
+
+        outputLines.forEach((line, idx) => {
+          setTimeout(() => {
+            setTerminalOutputs((prev) => [...prev, line]);
+          }, 300 * (idx + 1));
+        });
+      }
+    }, 100);
+
+    // Blinking terminal cursor
+    const cursorInterval = setInterval(() => {
+      setShowCursor((prev) => !prev);
+    }, 500);
+
+    return () => {
+      clearInterval(typingInterval);
+      clearInterval(cursorInterval);
+    };
   }, []);
 
-  useEffect(() => {
-    if (phase !== "outputs") return;
-
-    const outputs = [
-      "> full-stack developer",
-      "> problem solver",
-      "> builder"
-    ];
-
-    let outputIndex = 0;
-    const interval = setInterval(() => {
-      if (outputIndex < outputs.length) {
-        const nextLine = outputs[outputIndex];
-        setTerminalOutputs((prev) => [...prev, nextLine]);
-        outputIndex++;
-      } else {
-        clearInterval(interval);
-        setPhase("idle");
-      }
-    }, 400);
-
-    return () => clearInterval(interval);
-  }, [phase]);
-
   return (
-    <section className="relative min-h-[calc(100vh-4rem)] flex items-center py-12 md:py-20 overflow-hidden">
+    <section className="relative min-h-[calc(100vh-4rem)] flex items-center py-20 lg:py-32 overflow-hidden">
       {/* Background radial highlight */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-accent/3 rounded-full blur-[100px] pointer-events-none" />
       
@@ -137,7 +129,7 @@ export const Hero: React.FC = () => {
                   <span className="text-accent">$</span>
                   <span className="font-semibold">
                     {typedInput}
-                    {phase === "typing" && <span className="animate-pulse">_</span>}
+                    {typedInput.length < 6 && showCursor && <span>_</span>}
                   </span>
                 </div>
 
@@ -154,7 +146,7 @@ export const Hero: React.FC = () => {
                 </div>
               </div>
 
-              {phase === "idle" && (
+              {terminalOutputs.length === 3 && (
                 <div className="flex items-center gap-2 text-xs text-secondary-text/30 border-t border-border-subtle/50 pt-3 mt-4">
                   <span>Press Esc to refresh shell</span>
                 </div>

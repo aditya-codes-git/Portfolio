@@ -29,7 +29,7 @@ export const Contact: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-20 border-t border-border-subtle bg-background">
+    <section id="contact" className="py-24 sm:py-32 border-t border-border-subtle bg-background">
       <div className="max-w-6xl mx-auto px-6">
         <SectionTitle
           label="Contact"

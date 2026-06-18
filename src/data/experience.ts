@@ -40,21 +40,21 @@ export const achievements: AchievementItem[] = [
   {
     id: "genai-hackathon",
     title: "Google GenAI Hackathon Second Runner-Up",
-    description: "Awarded out of 100+ competing teams for building a workspace smart helper Chrome API integration."
+    description: "Placed 3rd out of 100+ teams for building an AI-powered smart browser workspace manager."
   },
   {
     id: "iitb-devfusion",
     title: "IIT Bombay DevFusion 3rd Place",
-    description: "Developed and pitched a developer automation testing suite in under 36 hours."
+    description: "Secured 3rd place in 36-hour hackathon for building an automated test generation platform."
   },
   {
     id: "csi-president-achievement",
     title: "CSI Chapter President",
-    description: "Appointed to lead the Computer Society of India student branch for excellence in technical leadership."
+    description: "Elected to lead the Computer Society of India student branch, directing events and workshops."
   },
   {
     id: "dsa-problems",
     title: "150+ Coding Problems Solved",
-    description: "Solved algorithms and data structure challenges across LeetCode, Code Studio, and HackerRank."
+    description: "Solved data structures and algorithms problems across LeetCode, CodeStudio, and HackerRank."
   }
 ];

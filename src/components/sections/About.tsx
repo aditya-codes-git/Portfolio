@@ -18,7 +18,7 @@ export const About: React.FC = () => {
     {
       icon: Cpu,
       title: "Systems & Architecture",
-      description: "Fascinated by high-concurrency systems, memory management, and virtualization. Builder of local caches, extensions, and engines."
+      description: "Exploring backend architecture, caching systems, and performance-focused software engineering through hands-on projects."
     },
     {
       icon: Users,
@@ -28,7 +28,7 @@ export const About: React.FC = () => {
   ];
 
   return (
-    <section id="about" className="py-20 border-t border-border-subtle bg-background relative">
+    <section id="about" className="py-24 sm:py-32 border-t border-border-subtle bg-background relative">
       <div className="max-w-6xl mx-auto px-6">
         <SectionTitle
           label="About Me"
