@@ -17,9 +17,27 @@ export const Terminal: React.FC = () => {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [showCursor, setShowCursor] = useState(true);
   const [isFocused, setIsFocused] = useState(false);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const activeTimers = useRef<any[]>([]);
+  const shouldRefocus = useRef(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalBodyRef = useRef<HTMLDivElement>(null);
+
+  // Clear active timers on unmount to prevent leaks
+  useEffect(() => {
+    return () => {
+      activeTimers.current.forEach((t) => clearTimeout(t));
+    };
+  }, []);
+
+  // Refocus input automatically after execution completes
+  useEffect(() => {
+    if (!isExecuting && shouldRefocus.current) {
+      inputRef.current?.focus();
+      shouldRefocus.current = false;
+    }
+  }, [isExecuting]);
 
   // Focus the terminal input when clicking anywhere on the terminal box
   const handleTerminalClick = () => {
@@ -96,6 +114,8 @@ export const Terminal: React.FC = () => {
 
   // Keyboard navigation & execution
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (isExecuting) return;
+
     if (e.key === "Enter") {
       const trimmedInput = rawInput.trim();
       
@@ -119,15 +139,35 @@ export const Terminal: React.FC = () => {
       }
       setHistoryIndex(-1);
 
-      // Parse and execute
-      const { cmdName, args } = parseCommand(trimmedInput);
-      const matchedCmd = commands[cmdName];
+      // Clear input and enter execution mode
+      setRawInput("");
+      setIsExecuting(true);
+      shouldRefocus.current = true;
 
-      let outputResult: React.ReactNode | string | string[] = "";
-      let shouldClear = false;
+      const logId = Math.random().toString();
+      
+      // Append command prompt line immediately with empty output
+      setLogs((prev) => [
+        ...prev,
+        {
+          id: logId,
+          directory: currentDirectory,
+          command: trimmedInput,
+          output: []
+        }
+      ]);
 
-      if (matchedCmd) {
-        // Build execution context
+      const updateLogOutput = (newLines: string[] | React.ReactNode) => {
+        setLogs((prev) =>
+          prev.map((log) =>
+            log.id === logId ? { ...log, output: newLines } : log
+          )
+        );
+      };
+
+      const runStages = async () => {
+        const { cmdName, args } = parseCommand(trimmedInput);
+        
         const context = {
           args,
           router,
@@ -139,30 +179,91 @@ export const Terminal: React.FC = () => {
           }
         };
 
-        const result = matchedCmd.execute(context);
-        outputResult = result.output;
-        if (result.clearHistory) {
-          shouldClear = true;
-        }
-      } else {
-        outputResult = `Command not found: ${cmdName}. Type "help" for available commands.`;
-      }
+        const sleep = (ms: number) => new Promise((resolve) => {
+          const timer = setTimeout(resolve, ms);
+          activeTimers.current.push(timer);
+        });
 
-      if (shouldClear) {
-        setLogs([]);
-      } else {
-        setLogs((prev) => [
-          ...prev,
-          {
-            id: Math.random().toString(),
-            directory: currentDirectory,
-            command: trimmedInput,
-            output: outputResult
+        try {
+          if (cmdName === "projects") {
+            updateLogOutput(["Fetching projects..."]);
+            await sleep(500);
+            updateLogOutput(["Fetching projects...", "Loading project metadata..."]);
+            await sleep(500);
+            const res = commands.projects.execute(context);
+            updateLogOutput(res.output);
+          } else if (cmdName === "resume") {
+            updateLogOutput(["Opening resume document..."]);
+            await sleep(250);
+            updateLogOutput(["Opening resume document...", "Checking file..."]);
+            await sleep(250);
+            updateLogOutput(["Opening resume document...", "Checking file...", "Launching viewer..."]);
+            await sleep(300);
+            if (typeof window !== "undefined") {
+              window.open("/resume.pdf", "_blank");
+            }
+            updateLogOutput(["Opening resume document...", "Checking file...", "Launching viewer...", "Done."]);
+          } else if (cmdName === "contact") {
+            updateLogOutput(["Locating contact section..."]);
+            await sleep(400);
+            updateLogOutput(["Locating contact section...", "Scrolling..."]);
+            await sleep(400);
+            context.scrollToContact();
+            updateLogOutput(["Locating contact section...", "Scrolling...", "Done."]);
+          } else if (cmdName === "open" && args[0] === "projects") {
+            updateLogOutput(["Opening projects page..."]);
+            await sleep(800);
+            context.router.push("/projects");
+          } else if (cmdName === "project") {
+            const target = args[0]?.toLowerCase();
+            const aliasMap: Record<string, string> = {
+              reflow: "reflow",
+              "mini-redis": "mini-redis",
+              redis: "mini-redis",
+              "testgen-ai": "testgen-ai",
+              testgen: "testgen-ai",
+              enginow: "enginow"
+            };
+            const slug = target ? aliasMap[target] : undefined;
+            if (slug) {
+              const projectName = slug === "mini-redis" ? "Mini Redis" : slug === "testgen-ai" ? "TestGen AI" : slug.charAt(0).toUpperCase() + slug.slice(1);
+              updateLogOutput(["Finding project..."]);
+              await sleep(250);
+              updateLogOutput(["Finding project...", "Loading architecture..."]);
+              await sleep(250);
+              updateLogOutput(["Finding project...", "Loading architecture...", `Opening ${projectName} workspace...`]);
+              await sleep(300);
+              context.router.push(`/projects/${slug}`);
+            } else {
+              await sleep(150);
+              const res = commands.project.execute(context);
+              updateLogOutput(res.output);
+            }
+          } else {
+            // Instant commands (help, about, skills, experience, clear, ls, cd)
+            const matchedCmd = commands[cmdName];
+            if (matchedCmd) {
+              if (cmdName === "clear") {
+                // Clear immediately
+                setLogs([]);
+              } else {
+                await sleep(150);
+                const res = matchedCmd.execute(context);
+                updateLogOutput(res.output);
+              }
+            } else {
+              await sleep(150);
+              updateLogOutput(`Command not found: ${cmdName}. Type "help" for available commands.`);
+            }
           }
-        ]);
-      }
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setIsExecuting(false);
+        }
+      };
 
-      setRawInput("");
+      runStages();
     } else if (e.key === "Tab") {
       e.preventDefault(); // Stop default browser focus shifting
       const completed = autocompleteCommand(rawInput, currentDirectory);
@@ -222,7 +323,11 @@ export const Terminal: React.FC = () => {
           <span className="text-secondary-text/60">aditya@portfolio:~{currentDirectory === "~" ? "" : "/" + currentDirectory}$</span>
           
           <div className="flex-1 relative flex items-center">
-            {rawInput === "" && !isFocused ? (
+            {isExecuting ? (
+              <span className="text-secondary-text/50 font-mono select-none">
+                processing...
+              </span>
+            ) : rawInput === "" && !isFocused ? (
               <span className="text-secondary-text/50 font-mono select-none">
                 Click terminal to start typing...
               </span>
@@ -249,6 +354,7 @@ export const Terminal: React.FC = () => {
               onKeyDown={handleKeyDown}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
+              disabled={isExecuting}
               className="opacity-0 absolute inset-0 w-full h-full cursor-text outline-none border-none select-none pointer-events-none"
               autoComplete="off"
               autoCorrect="off"
