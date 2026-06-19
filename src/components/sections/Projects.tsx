@@ -2,18 +2,112 @@
 
 import React from "react";
 import Link from "next/link";
-import { projects } from "@/data/projects";
-import { Card } from "@/components/ui/Card";
-import { ExternalLink, Cpu } from "lucide-react";
 import { motion } from "framer-motion";
+import { FileText, GitBranch, ArrowRight, Activity, Terminal } from "lucide-react";
+
+interface ProcessProject {
+  id: string;
+  pid: string;
+  name: string;
+  status: "SHIPPED" | "RUNNING" | "TRAINING" | "LIVE";
+  type: string;
+  runtime: string;
+  stack: string;
+  modules: string[];
+  logs: string[];
+  buildStatus: string;
+  progress: number;
+}
+
+const processes: ProcessProject[] = [
+  {
+    id: "reflow",
+    pid: "process://001",
+    name: "reflow.exe",
+    status: "SHIPPED",
+    type: "AI Workspace Manager",
+    runtime: "Chrome Extension",
+    stack: "JavaScript · AI APIs · Browser APIs",
+    modules: ["tab engine", "workspace restore", "AI classifier"],
+    logs: ["classifier optimized", "workspace restored"],
+    buildStatus: "stable",
+    progress: 100
+  },
+  {
+    id: "mini-redis",
+    pid: "process://002",
+    name: "redis.server",
+    status: "RUNNING",
+    type: "Cache Engine",
+    runtime: "Java Backend Service",
+    stack: "Java · TCP/IP · Data Structures",
+    modules: ["LRU eviction", "TTL manager", "O(1) operations"],
+    logs: ["LRU cache eviction online", "TTL service running"],
+    buildStatus: "building",
+    progress: 70
+  },
+  {
+    id: "testgen-ai",
+    pid: "process://003",
+    name: "testgen.ai",
+    status: "TRAINING",
+    type: "QA Automation",
+    runtime: "AI System",
+    stack: "Python · LangChain · OpenAI",
+    modules: ["test generation", "automation engine", "analysis pipeline"],
+    logs: ["generating test suites", "analysis pipeline online"],
+    buildStatus: "training",
+    progress: 60
+  },
+  {
+    id: "enginow",
+    pid: "process://004",
+    name: "enginow.dev",
+    status: "LIVE",
+    type: "Event Platform",
+    runtime: "Full Stack Application",
+    stack: "React · Next.js · Node.js",
+    modules: ["React frontend", "REST API", "database layer"],
+    logs: ["socket server active", "database connected"],
+    buildStatus: "live",
+    progress: 100
+  }
+];
 
 export const Projects: React.FC = () => {
+  const containerVariants = {
+    initial: {},
+    animate: {
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const cardVariants = {
+    initial: { opacity: 0, y: 30 },
+    animate: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.16, 1, 0.3, 1] as const
+      }
+    }
+  };
+
   return (
-    <section id="projects" className="py-24 sm:py-32 border-t border-border-subtle bg-background">
+    <section id="projects" className="py-24 sm:py-32 border-t border-border-subtle bg-background select-none">
       <div className="max-w-6xl mx-auto px-6">
         
-        {/* Header with View All Projects Button */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 sm:mb-16">
+        {/* Compact Process Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.25 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 sm:mb-16"
+        >
           <div className="space-y-3 max-w-xl text-left">
             <span className="text-xs font-mono tracking-widest text-accent uppercase block">
               // Portfolio
@@ -21,130 +115,142 @@ export const Projects: React.FC = () => {
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground text-gradient">
               Featured Projects
             </h2>
-            <p className="text-sm sm:text-base text-secondary-text leading-relaxed">
-              Engineering systems, developer tooling, and smart browser extensions built for efficiency and scale.
+            <p className="text-sm sm:text-base text-secondary-text leading-relaxed font-sans">
+              Processes currently running inside my developer workspace.
             </p>
             
-            {/* Mobile "View All Projects" Button - directly below description */}
+            {/* Mobile View All Button */}
             <div className="md:hidden pt-2">
               <Link
                 href="/projects"
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-card border border-[#e5e5e5] dark:border-border-subtle hover:border-[#cccccc] dark:hover:border-accent/40 text-foreground hover:text-accent font-medium text-sm rounded shadow-sm transition-all duration-200 select-none cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-[#e5e5e5] hover:border-[#cccccc] text-foreground hover:text-accent font-mono text-xs rounded shadow-sm transition-all duration-200 select-none cursor-pointer"
               >
                 View All Projects <span className="font-mono">→</span>
               </Link>
             </div>
           </div>
           
-          {/* Desktop "View All Projects" Button */}
+          {/* Desktop View All Button */}
           <div className="hidden md:block">
             <Link
               href="/projects"
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-card border border-[#e5e5e5] dark:border-border-subtle hover:border-[#cccccc] dark:hover:border-accent/40 text-foreground hover:text-accent font-medium text-sm rounded shadow-sm transition-all duration-200 select-none cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-[#e5e5e5] hover:border-[#cccccc] text-foreground hover:text-accent font-mono text-xs rounded shadow-sm transition-all duration-200 select-none cursor-pointer"
             >
               View All Projects <span className="font-mono">→</span>
             </Link>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Project Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-          {projects.map((project) => (
+        {/* Process Cards Grid */}
+        <motion.div
+          variants={containerVariants}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, amount: 0.15 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8"
+        >
+          {processes.map((proc) => (
             <motion.div
-              key={project.id}
-              whileHover={{ y: -6 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              key={proc.id}
+              variants={cardVariants}
+              whileHover={{ y: -4 }}
               className="group"
             >
-              <Card className="h-full p-6 bg-card flex flex-col rounded-md transition-colors duration-300 group-hover:border-accent/30 group-hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] text-left">
+              <div className="h-full p-6 bg-white border border-[#e5e5e5] rounded-lg transition-colors duration-300 group-hover:border-neutral-400 group-hover:shadow-[0_4px_20px_rgba(0,0,0,0.03)] text-left flex flex-col justify-between">
                 
-                {/* Main Content (flex-1 to push button area to bottom) */}
-                <div className="flex-1 space-y-4">
-                  {/* Header */}
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Cpu className="w-4 h-4 text-accent" />
-                        <h3 className="text-lg font-semibold text-foreground tracking-tight">
-                          {project.title}
-                        </h3>
-                      </div>
-                      <p className="text-xs text-secondary-text font-mono">
-                        {project.subtitle}
-                      </p>
+                {/* Header (Top Row) */}
+                <div className="flex items-center justify-between border-b border-border-subtle/55 pb-3 select-none">
+                  <span className="font-mono text-xs text-secondary-text/60">
+                    {proc.pid}
+                  </span>
+                  <div className="flex items-center gap-1.5 font-mono text-[11px] text-accent select-none font-medium">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                    <span className="inline-block text-right">
+                      <span className="group-hover:hidden">
+                        {proc.status}
+                      </span>
+                      <span className="hidden group-hover:inline">
+                        INSPECT PROCESS
+                      </span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Body Content */}
+                <div className="flex-1 mt-4 space-y-4">
+                  {/* Name and Type */}
+                  <div>
+                    <h3 className="font-mono text-base font-semibold text-foreground tracking-tight flex items-center gap-1.5">
+                      <span className="text-secondary-text/30 font-medium select-none">$</span>
+                      <span>{proc.name}</span>
+                    </h3>
+                    <span className="text-xs text-secondary-text font-sans mt-0.5 block">
+                      {proc.type}
+                    </span>
+                  </div>
+
+                  {/* Runtime and Stack */}
+                  <div className="space-y-1.5 text-xs border-t border-border-subtle/30 pt-3.5">
+                    <div className="flex justify-between items-center font-sans">
+                      <span className="text-[10px] uppercase tracking-wider text-secondary-text font-mono">runtime</span>
+                      <span className="text-foreground/90 font-medium">{proc.runtime}</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      {project.githubUrl && (
-                        <a
-                          href={project.githubUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-secondary-text hover:text-foreground transition-colors p-1"
-                          aria-label={`View ${project.title} on GitHub`}
-                        >
-                          <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-                            <path d="M9 18c-4.51 2-5-2-7-2" />
-                          </svg>
-                        </a>
-                      )}
-                      {project.liveUrl && project.liveUrl !== "#" && (
-                        <a
-                          href={project.liveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-secondary-text hover:text-foreground transition-colors p-1"
-                          aria-label={`Visit ${project.title} live`}
-                        >
-                          <ExternalLink className="w-4.5 h-4.5" />
-                        </a>
-                      )}
+                    <div className="flex justify-between items-center font-sans">
+                      <span className="text-[10px] uppercase tracking-wider text-secondary-text font-mono">stack</span>
+                      <span className="text-foreground/80 font-mono text-[11px] truncate max-w-[220px]">{proc.stack}</span>
                     </div>
                   </div>
 
-                  {/* Description */}
-                  <p className="text-sm text-secondary-text leading-relaxed">
-                    {project.description}
-                  </p>
-
-                  {/* Highlights */}
-                  <div className="space-y-2 border-t border-border-subtle/50 pt-4">
-                    <span className="text-[10px] font-mono tracking-wider text-accent uppercase block mb-1">
-                      Key Highlights
-                    </span>
-                    <ul className="space-y-1.5">
-                      {project.highlights.map((highlight, idx) => (
-                        <li key={idx} className="text-xs text-secondary-text flex items-center gap-2">
-                          <span className="w-1 h-1 rounded-full bg-accent" />
-                          <span>{highlight}</span>
+                  {/* Modules Checklist */}
+                  <div className="border-t border-border-subtle/30 pt-3.5">
+                    <span className="text-[10px] uppercase tracking-wider text-accent font-mono block mb-2 select-none">Modules</span>
+                    <ul className="space-y-1.5 font-mono text-xs text-secondary-text">
+                      {proc.modules.map((mod, idx) => (
+                        <li key={idx} className="flex items-center gap-2">
+                          <span className="text-accent font-semibold select-none">✓</span>
+                          <span>{mod}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  {/* Tech Tags */}
-                  <div className="flex flex-wrap gap-1.5 mt-6 border-t border-border-subtle/30 pt-4">
-                    {project.tech.map((techItem) => (
-                      <span
-                        key={techItem}
-                        className="px-2 py-0.5 text-[10px] font-mono bg-card-alt border border-border-subtle text-secondary-text rounded-sm uppercase tracking-tight"
-                      >
-                        {techItem}
-                      </span>
-                    ))}
+                  {/* latest.log Preview */}
+                  <div className="border-t border-border-subtle/30 pt-3.5">
+                    <span className="text-[10px] uppercase tracking-wider text-secondary-text/70 font-mono block mb-2 select-none">latest.log</span>
+                    <div className="bg-[#fafafa] border border-[#e5e5e5] p-2.5 rounded font-mono text-[11px] leading-relaxed text-secondary-text/80 select-text">
+                      {proc.logs.map((log, idx) => (
+                        <div key={idx} className="truncate">
+                          <span className="text-secondary-text/40 select-none">&gt;</span> {log}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Build Progress Bar */}
+                  <div className="border-t border-border-subtle/30 pt-3.5 space-y-1.5 select-none">
+                    <div className="flex justify-between items-center text-xs font-mono text-secondary-text">
+                      <span className="text-[10px] uppercase tracking-wider">build</span>
+                      <span className="font-semibold text-foreground/80">{proc.buildStatus}</span>
+                    </div>
+                    <div className="w-full bg-neutral-100 h-2 border border-[#e5e5e5] p-[1px] rounded-sm">
+                      <div
+                        className="h-full bg-accent/70 rounded-xs transition-all duration-500"
+                        style={{ width: `${proc.progress}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {/* Open Project CTA Button Area */}
+                {/* Footer Open Button */}
                 <div className="border-t border-border-subtle/50 mt-6 pt-4 flex items-center justify-start">
                   <Link
-                    href={`/projects/${project.id}`}
-                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-foreground hover:text-accent group/btn transition-colors cursor-pointer select-none"
+                    href={`/projects/${proc.id}`}
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground hover:text-accent group/btn transition-colors cursor-pointer select-none"
                   >
-                    Open {project.title}{" "}
+                    Open Process
                     <motion.span
                       className="inline-block"
-                      whileHover={{ x: 4 }}
+                      whileHover={{ x: 3 }}
                       transition={{ type: "spring", stiffness: 400, damping: 10 }}
                     >
                       →
@@ -152,12 +258,13 @@ export const Projects: React.FC = () => {
                   </Link>
                 </div>
                 
-              </Card>
+              </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
 };
+
 export default Projects;
