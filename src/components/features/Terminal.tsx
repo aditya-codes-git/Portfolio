@@ -694,7 +694,9 @@ export const Terminal: React.FC = () => {
                 "border shadow-2xl overflow-hidden font-mono leading-relaxed text-left flex flex-col text-[14px] md:text-[15px] lg:text-[16px] xl:text-[17px]",
                 windowState.fullscreen
                   ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] md:w-[90vw] h-[85dvh] md:h-[85vh] max-w-none max-h-none rounded-lg scale-100 z-50"
-                  : "w-full h-[60vh] min-h-[450px] md:h-[clamp(520px,62vh,650px)] md:min-h-0 rounded-lg md:rounded-md scale-100 z-30"
+                  : windowState.minimized
+                    ? "w-full h-auto rounded-lg md:rounded-md scale-100 z-30"
+                    : "w-full h-[60vh] min-h-[450px] md:h-[clamp(520px,62vh,650px)] md:min-h-0 rounded-lg md:rounded-md scale-100 z-30"
               )}
             >
               {/* Terminal Title Bar */}
