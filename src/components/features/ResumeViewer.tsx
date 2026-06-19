@@ -86,12 +86,23 @@ const PDFPage: React.FC<PDFPageProps> = ({ pdfDoc, pageNumber, scale }) => {
 };
 
 export const ResumeViewer: React.FC<ResumeViewerProps> = ({ isOpen, onClose }) => {
-  const [zoomLevel, setZoomLevel] = useState<number>(100);
+  const [zoomLevel, setZoomLevel] = useState<number>(115);
   const [pdfLibLoaded, setPdfLibLoaded] = useState(false);
   const [numPages, setNumPages] = useState<number>(0);
   const [pdfDoc, setPdfDoc] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  // Set default zoom based on screen size on open
+  useEffect(() => {
+    if (isOpen && typeof window !== "undefined") {
+      if (window.innerWidth < 768) {
+        setZoomLevel(60); // Mobile: fit width
+      } else {
+        setZoomLevel(115); // Desktop: 115% zoom
+      }
+    }
+  }, [isOpen]);
 
   // Load PDF.js CDN
   useEffect(() => {
@@ -199,7 +210,7 @@ export const ResumeViewer: React.FC<ResumeViewerProps> = ({ isOpen, onClose }) =
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-[95vw] md:w-[850px] h-[85vh] bg-[#fbfbfb] dark:bg-card border border-[#e5e5e5] dark:border-border-subtle rounded-xl shadow-2xl flex flex-col overflow-hidden select-none"
+            className="relative w-[95vw] md:w-[min(90vw,1050px)] h-[85vh] md:h-[88vh] bg-[#fbfbfb] dark:bg-card border border-[#e5e5e5] dark:border-border-subtle rounded-xl shadow-2xl flex flex-col overflow-hidden select-none"
           >
             {/* Top Toolbar */}
             <div className="h-[50px] min-h-[50px] px-5 bg-white dark:bg-card-alt border-b border-[#e5e5e5] dark:border-border-subtle flex items-center justify-between z-10">
