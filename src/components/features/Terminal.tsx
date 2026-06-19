@@ -12,6 +12,7 @@ import { navigateFromTerminal } from "@/lib/navigation/terminalNavigation";
 import { TerminalWindowControls } from "./TerminalWindowControls";
 import { getStoredTheme, setStoredTheme, terminalThemes, TerminalTheme } from "@/lib/terminal/themes";
 import { getWindowVariants, getRestoreVariants, bodyVariants, terminalTransition } from "@/lib/animations/terminalAnimations";
+import { saveTerminalSession, loadTerminalSession, clearTerminalSession } from "@/lib/terminal/session";
 
 export const Terminal: React.FC = () => {
   const router = useRouter();
@@ -53,6 +54,20 @@ export const Terminal: React.FC = () => {
   // Load stored theme on mount
   useEffect(() => {
     setCurrentTheme(getStoredTheme());
+  }, []);
+
+  // Restore terminal session on mount
+  useEffect(() => {
+    const saved = loadTerminalSession();
+    if (saved && saved.logs && saved.logs.length > 0) {
+      setLogs(saved.logs);
+      setCommandHistory(saved.commandHistory || []);
+      setCurrentDirectory(saved.currentDirectory || "~");
+      if (saved.theme) {
+        setCurrentTheme(saved.theme);
+      }
+      setHasBooted(true);
+    }
   }, []);
 
   // Handle ESC key globally to exit fullscreen
@@ -193,6 +208,26 @@ export const Terminal: React.FC = () => {
     }, 550);
     return () => clearInterval(interval);
   }, []);
+
+  // Save terminal session on state changes
+  useEffect(() => {
+    if (logs.length > 0) {
+      const serializedLogs = logs.map((log) => ({
+        ...log,
+        output: React.isValidElement(log.output)
+          ? { type: "component", component: "projects" }
+          : log.output,
+      }));
+      saveTerminalSession({
+        logs: serializedLogs,
+        commandHistory,
+        currentDirectory,
+        theme: currentTheme,
+      });
+    } else if (hasBooted) {
+      clearTerminalSession();
+    }
+  }, [logs, commandHistory, currentDirectory, currentTheme, hasBooted]);
 
   // Boot animation sequence when terminal is scrolled into view
   useEffect(() => {
@@ -595,7 +630,7 @@ export const Terminal: React.FC = () => {
   } as React.CSSProperties;
 
   return (
-    <div className="w-full max-w-[1000px] mx-auto min-h-[100px] flex items-center justify-center">
+    <div className="w-full max-w-[1200px] mx-auto min-h-[100px] flex items-center justify-center">
       <AnimatePresence mode="wait">
         {windowState.closed ? (
           <motion.div
@@ -641,10 +676,10 @@ export const Terminal: React.FC = () => {
               onClick={handleTerminalClick}
               style={terminalStyle}
               className={cn(
-                "border shadow-2xl overflow-hidden font-mono leading-relaxed text-left flex flex-col z-50",
+                "border shadow-2xl overflow-hidden font-mono leading-relaxed text-left flex flex-col",
                 windowState.fullscreen
-                  ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] md:w-[90vw] h-[85dvh] md:h-[85vh] max-w-none max-h-none rounded-lg scale-100"
-                  : "w-full h-auto rounded-lg md:rounded-md scale-100"
+                  ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] md:w-[90vw] h-[85dvh] md:h-[85vh] max-w-none max-h-none rounded-lg scale-100 z-50"
+                  : "w-full h-auto rounded-lg md:rounded-md scale-100 z-30"
               )}
             >
               {/* Terminal Title Bar */}
@@ -745,7 +780,7 @@ export const Terminal: React.FC = () => {
                         "p-4 md:p-5 overflow-y-auto scroll-smooth flex flex-col gap-2",
                         windowState.fullscreen
                           ? "flex-grow"
-                          : "h-[400px] md:h-[450px] max-h-[calc(70dvh-44px)] md:max-h-none"
+                          : "h-[450px] md:h-[520px] max-h-[calc(75dvh-44px)] md:max-h-none"
                       )}
                     >
                       <TerminalOutput logs={logs} />

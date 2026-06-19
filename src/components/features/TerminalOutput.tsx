@@ -1,4 +1,6 @@
 import React from "react";
+import { useRouter } from "next/navigation";
+import { commands } from "@/lib/terminal/commands";
 
 export interface LogEntry {
   id: string;
@@ -12,6 +14,8 @@ interface TerminalOutputProps {
 }
 
 export const TerminalOutput: React.FC<TerminalOutputProps> = ({ logs }) => {
+  const router = useRouter();
+
   return (
     <div className="space-y-3.5 font-mono text-xs select-none">
       {logs.map((log) => (
@@ -35,6 +39,8 @@ export const TerminalOutput: React.FC<TerminalOutputProps> = ({ logs }) => {
           >
             {React.isValidElement(log.output) ? (
               log.output
+            ) : (log.output && typeof log.output === "object" && !Array.isArray(log.output) && (log.output as any).type === "component") ? (
+              commands[(log.output as any).component]?.execute({ router } as any).output
             ) : Array.isArray(log.output) ? (
               <div className="space-y-1">
                 {log.output.map((line, idx) => (
@@ -51,3 +57,4 @@ export const TerminalOutput: React.FC<TerminalOutputProps> = ({ logs }) => {
   );
 };
 export default TerminalOutput;
+

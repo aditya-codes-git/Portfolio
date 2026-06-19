@@ -175,7 +175,7 @@ export const Hero: React.FC = () => {
         <motion.div
           id="terminal"
           {...terminalFadeProps}
-          className="w-full max-w-[1000px] mt-16 flex justify-center"
+          className="w-full max-w-[1200px] mt-16 flex justify-center"
         >
           <Terminal />
         </motion.div>
