@@ -11,8 +11,11 @@ import { Experience } from "@/components/sections/Experience";
 import { Skills } from "@/components/sections/Skills";
 import { Achievements } from "@/components/sections/Achievements";
 import { Contact } from "@/components/sections/Contact";
+import { ResumeViewer } from "@/components/features/ResumeViewer";
 
 export default function Home() {
+  const [isResumeOpen, setIsResumeOpen] = React.useState(false);
+
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       const scrollNeeded = sessionStorage.getItem("scroll_to_terminal");
@@ -28,6 +31,18 @@ export default function Home() {
     }
   }, []);
 
+  // Global key listener for Ctrl + Enter / Cmd + Enter to open Resume
+  React.useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        setIsResumeOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, []);
+
   const fadeUpProps = {
     initial: { opacity: 0, y: 20 },
     whileInView: { opacity: 1, y: 0 },
@@ -41,7 +56,7 @@ export default function Home() {
       
       <main className="flex-grow">
         {/* Hero Section */}
-        <Hero />
+        <Hero onOpenResume={() => setIsResumeOpen(true)} />
 
         {/* About Section */}
         <motion.div {...fadeUpProps}>
@@ -75,6 +90,9 @@ export default function Home() {
       </main>
 
       <Footer />
+
+      {/* Internal PDF Resume Viewer */}
+      <ResumeViewer isOpen={isResumeOpen} onClose={() => setIsResumeOpen(false)} />
     </>
   );
 }

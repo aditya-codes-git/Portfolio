@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/Button";
 import { Terminal } from "@/components/features/Terminal";
 import { motion } from "framer-motion";
 
-export const Hero: React.FC = () => {
+interface HeroProps {
+  onOpenResume?: () => void;
+}
+
+export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
   const statusFadeProps = {
     initial: { opacity: 0, y: 10 },
     animate: { opacity: 1, y: 0 },
@@ -194,8 +198,15 @@ export const Hero: React.FC = () => {
               <Button href="#projects" variant="primary" className="w-full sm:w-auto min-h-[44px] flex items-center justify-center">
                 Explore Work <span className="ml-1 font-mono">→</span>
               </Button>
-              <Button href="/resume.pdf" variant="secondary" external className="w-full sm:w-auto min-h-[44px] flex items-center justify-center">
-                View Resume <span className="ml-1.5 font-mono text-[10px] opacity-75 border border-border-subtle px-1 py-0.5 rounded bg-card-alt">⌘R</span>
+              <Button
+                variant="secondary"
+                className="w-full sm:w-auto min-h-[44px] flex items-center justify-center"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (onOpenResume) onOpenResume();
+                }}
+              >
+                View Resume <span className="ml-1.5 font-mono text-[10px] opacity-75 border border-border-subtle px-1 py-0.5 rounded bg-card-alt">Ctrl+Enter</span>
               </Button>
             </div>
             <span className="text-[11px] font-mono text-secondary-text/40 select-none">
