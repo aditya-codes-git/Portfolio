@@ -84,7 +84,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
             className="inline-flex items-center gap-2 px-3 py-1 bg-card border border-border-subtle rounded-full w-fit select-none shadow-sm"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            <span className="text-[11px] font-mono tracking-tight text-secondary-text">
+            <span className="text-xs sm:text-sm font-mono tracking-tight text-secondary-text">
               developer instance active <span className="text-secondary-text/30">|</span> shipping ideas since 2025
             </span>
           </motion.div>
@@ -94,7 +94,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
             {...nameFadeProps}
             className="mt-3 flex flex-col items-center select-none"
           >
-            <div className="text-sm font-mono text-secondary-text/50 flex items-center gap-1.5">
+            <div className="text-sm sm:text-base font-mono text-secondary-text/50 flex items-center gap-1.5">
               <span>$ whoami</span>
             </div>
             <h1 className="text-[clamp(2.5rem,8vw,3.75rem)] sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] text-gradient mt-1">
@@ -107,10 +107,10 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
             {...descFadeProps}
             className="text-center max-w-2xl mt-2.5 flex flex-col items-center gap-2"
           >
-            <p className="text-base sm:text-[18px] font-medium tracking-tight text-foreground leading-relaxed">
+            <p className="text-lg sm:text-xl md:text-2xl font-medium tracking-tight text-foreground leading-relaxed">
               Full Stack Developer building <span className="text-accent font-semibold">developer tools</span>, <span className="text-accent font-semibold">backend systems</span>, and <span className="text-accent font-semibold">interactive web experiences</span>.
             </p>
-            <p className="text-secondary-text text-xs sm:text-sm leading-relaxed max-w-xl mx-auto">
+            <p className="text-secondary-text text-sm sm:text-base leading-relaxed max-w-2xl mx-auto mt-2">
               I turn ideas into production-ready software — from browser extensions and full-stack platforms to backend systems built for performance.
             </p>
           </motion.div>
@@ -125,68 +125,68 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
               {/* Left Side: System Status */}
               <div className="flex flex-col gap-3 pr-0 md:pr-6">
                 <div>
-                  <h3 className="text-xs font-mono tracking-wider text-secondary-text/40 uppercase mb-1">System Status</h3>
+                  <h3 className="text-xs sm:text-sm font-mono tracking-wider text-secondary-text/50 uppercase mb-1.5">System Status</h3>
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                    <span className="font-mono text-xs font-medium text-foreground">online</span>
+                    <span className="font-mono text-xs sm:text-sm font-medium text-foreground">online</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-[75px_1fr] gap-x-3 gap-y-1.5 text-xs font-mono">
-                  <span className="text-secondary-text/40">role</span>
+                <div className="grid grid-cols-[85px_1fr] gap-x-3 gap-y-2 text-xs sm:text-sm font-mono">
+                  <span className="text-secondary-text/50">role</span>
                   <span className="font-medium text-foreground">Full Stack Developer</span>
 
-                  <span className="text-secondary-text/40">runtime</span>
+                  <span className="text-secondary-text/50">runtime</span>
                   <span className="font-medium text-foreground">Computer Engineering</span>
 
-                  <span className="text-secondary-text/40">mode</span>
+                  <span className="text-secondary-text/50">mode</span>
                   <span className="font-medium text-foreground">learning + shipping</span>
 
-                  <span className="text-secondary-text/40">debug</span>
+                  <span className="text-secondary-text/50">debug</span>
                   <span className="font-medium text-foreground">active</span>
                 </div>
               </div>
 
               {/* Right Side: Running Processes */}
               <div className="flex flex-col gap-3 pl-0 md:pl-6 pt-4 md:pt-0">
-                <h3 className="text-xs font-mono tracking-wider text-secondary-text/40 uppercase mb-1">Running Processes</h3>
+                <h3 className="text-xs sm:text-sm font-mono tracking-wider text-secondary-text/50 uppercase mb-1.5">Running Processes</h3>
 
                 <div className="flex flex-col gap-2.5">
                   <div>
-                    <div className="flex items-center justify-between text-xs font-mono">
+                    <div className="flex items-center justify-between text-xs sm:text-sm font-mono">
                       <div className="flex items-center gap-1.5">
                         <span className="text-accent text-[9px]">●</span>
                         <span className="font-semibold text-foreground">reflow.exe</span>
                       </div>
                       <span className="text-secondary-text/50">shipped</span>
                     </div>
-                    <span className="text-[11px] text-secondary-text/40 pl-3 block mt-0.5 leading-none">
+                    <span className="text-xs text-secondary-text/50 pl-3 block mt-0.5 leading-none">
                       AI workspace manager
                     </span>
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between text-xs font-mono">
+                    <div className="flex items-center justify-between text-xs sm:text-sm font-mono">
                       <div className="flex items-center gap-1.5">
                         <span className="text-accent text-[9px]">●</span>
                         <span className="font-semibold text-foreground">mini-redis.server</span>
                       </div>
                       <span className="text-secondary-text/50">experimental</span>
                     </div>
-                    <span className="text-[11px] text-secondary-text/40 pl-3 block mt-0.5 leading-none">
+                    <span className="text-xs text-secondary-text/50 pl-3 block mt-0.5 leading-none">
                       cache engine
                     </span>
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between text-xs font-mono">
+                    <div className="flex items-center justify-between text-xs sm:text-sm font-mono">
                       <div className="flex items-center gap-1.5">
                         <span className="text-accent text-[9px]">●</span>
                         <span className="font-semibold text-foreground">enginow.dev</span>
                       </div>
                       <span className="text-secondary-text/50">live</span>
                     </div>
-                    <span className="text-[11px] text-secondary-text/40 pl-3 block mt-0.5 leading-none">
+                    <span className="text-xs text-secondary-text/50 pl-3 block mt-0.5 leading-none">
                       event platform
                     </span>
                   </div>
@@ -196,7 +196,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
             </div>
 
             {/* Tiny footer inside panel */}
-            <div className="border-t border-[#e5e5e5]/80 dark:border-border-subtle/50 mt-4 pt-3 text-[11px] font-mono text-secondary-text/40">
+            <div className="border-t border-[#e5e5e5]/80 dark:border-border-subtle/50 mt-4 pt-3 text-xs font-mono text-secondary-text/50">
               $ open projects
             </div>
           </motion.div>
@@ -221,7 +221,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
                 View Resume <span className="ml-1.5 font-mono text-[10px] opacity-75 border border-border-subtle px-1 py-0.5 rounded bg-card-alt">Ctrl+Enter</span>
               </Button>
             </div>
-            <span className="text-[11px] font-mono text-secondary-text/40 select-none">
+            <span className="text-xs font-mono text-secondary-text/50 select-none">
               or type <code className="text-accent/70 font-semibold font-mono">&quot;projects&quot;</code> in terminal below
             </span>
           </motion.div>
