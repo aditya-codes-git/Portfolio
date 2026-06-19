@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -69,10 +70,10 @@ export const Navbar: React.FC = () => {
     >
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2 font-mono text-sm tracking-tight font-medium hover:text-accent transition-colors">
+        <Link href="/" className="flex items-center gap-2 font-mono text-sm tracking-tight font-medium hover:text-accent transition-colors">
           <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
           <span>aditya.pharande</span>
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
