@@ -633,7 +633,6 @@ export const Terminal: React.FC = () => {
 
   // Terminal CSS variables derived from theme
   const terminalStyle: React.CSSProperties = {
-    fontSize: "clamp(12px, 2vw, 15px)",
     // @ts-ignore - CSS custom properties
     "--term-bg": currentTheme.colors.bg,
     "--term-bg-header": currentTheme.colors.bgHeader,
@@ -646,7 +645,7 @@ export const Terminal: React.FC = () => {
   } as React.CSSProperties;
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto min-h-[100px] flex items-center justify-center">
+    <div className="w-full max-w-[1500px] w-[92vw] mx-auto min-h-[100px] flex items-center justify-center">
       <AnimatePresence mode="wait">
         {windowState.closed ? (
           <motion.div
@@ -692,10 +691,10 @@ export const Terminal: React.FC = () => {
               onClick={handleTerminalClick}
               style={terminalStyle}
               className={cn(
-                "border shadow-2xl overflow-hidden font-mono leading-relaxed text-left flex flex-col",
+                "border shadow-2xl overflow-hidden font-mono leading-relaxed text-left flex flex-col text-[14px] md:text-[15px] lg:text-[16px] xl:text-[17px]",
                 windowState.fullscreen
                   ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] md:w-[90vw] h-[85dvh] md:h-[85vh] max-w-none max-h-none rounded-lg scale-100 z-50"
-                  : "w-full h-auto rounded-lg md:rounded-md scale-100 z-30"
+                  : "w-full h-[70vh] min-h-[480px] md:h-[73vh] md:min-h-[650px] md:max-h-[850px] rounded-lg md:rounded-md scale-100 z-30"
               )}
             >
               {/* Terminal Title Bar */}
@@ -792,19 +791,14 @@ export const Terminal: React.FC = () => {
                         backgroundColor: "var(--term-bg)",
                         color: "var(--term-fg)",
                       }}
-                      className={cn(
-                        "p-4 md:p-5 overflow-y-auto scroll-smooth flex flex-col gap-2",
-                        windowState.fullscreen
-                          ? "flex-grow"
-                          : "h-[450px] md:h-[520px] max-h-[calc(75dvh-44px)] md:max-h-none"
-                      )}
+                      className="px-4 py-4 md:px-8 md:py-6 overflow-y-auto scroll-smooth flex flex-col gap-3 flex-grow"
                     >
                       <TerminalOutput logs={logs} />
 
                       {/* Input Prompter Row */}
                       {hasBooted && (
                         <div ref={inputLineRef} className="flex items-center gap-2 mt-1">
-                          <span style={{ color: "var(--term-secondary)", opacity: 0.6 }}>
+                          <span className="font-semibold" style={{ color: "var(--term-secondary)", opacity: 0.85 }}>
                             aditya@portfolio:~{currentDirectory === "~" ? "" : "/" + currentDirectory}$
                           </span>
                           
@@ -826,7 +820,7 @@ export const Terminal: React.FC = () => {
                             ) : (
                               <span
                                 style={{ color: "var(--term-fg)" }}
-                                className="font-semibold whitespace-pre break-all"
+                                className="font-semibold whitespace-pre-wrap break-words"
                               >
                                 {rawInput}
                                 {isFocused && (

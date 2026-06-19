@@ -17,13 +17,13 @@ export const TerminalOutput: React.FC<TerminalOutputProps> = ({ logs }) => {
   const router = useRouter();
 
   return (
-    <div className="space-y-3.5 font-mono text-xs select-none">
+    <div className="space-y-3.5 select-none">
       {logs.map((log) => (
         <div key={log.id} className="space-y-1.5">
           {/* Prompt command line */}
           {log.command && (
             <div className="flex items-center gap-2" style={{ color: "var(--term-fg)" }}>
-              <span style={{ color: "var(--term-secondary)", opacity: 0.6 }}>
+              <span className="font-semibold" style={{ color: "var(--term-secondary)", opacity: 0.85 }}>
                 aditya@portfolio:~{log.directory === "~" ? "" : "/" + log.directory}$
               </span>
               <span className="font-semibold" style={{ color: "var(--term-accent)" }}>
@@ -34,7 +34,7 @@ export const TerminalOutput: React.FC<TerminalOutputProps> = ({ logs }) => {
 
           {/* Render output based on type */}
           <div
-            className="pl-2 leading-relaxed break-words [overflow-wrap:anywhere] [word-break:break-word]"
+            className="pl-2 leading-relaxed break-words whitespace-pre-wrap [overflow-wrap:anywhere] [word-break:break-word]"
             style={{ color: "var(--term-secondary)" }}
           >
             {React.isValidElement(log.output) ? (
