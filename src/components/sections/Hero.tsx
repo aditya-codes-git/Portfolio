@@ -47,7 +47,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
   };
 
   return (
-    <section className="relative min-h-[calc(100dvh-4rem)] flex flex-col justify-start items-center pt-8 pb-20 lg:pt-12 lg:pb-32 overflow-hidden text-center">
+    <section className="relative min-h-[calc(100dvh-4rem)] flex flex-col justify-start items-center pt-4 pb-12 lg:pt-6 lg:pb-16 overflow-hidden text-center">
       {/* Background radial highlight */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-accent/5 rounded-full blur-[140px] pointer-events-none" />
 
@@ -92,12 +92,12 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
           {/* Name / Prompt Block */}
           <motion.div 
             {...nameFadeProps}
-            className="mt-6 flex flex-col items-center select-none"
+            className="mt-3 flex flex-col items-center select-none"
           >
             <div className="text-sm font-mono text-secondary-text/50 flex items-center gap-1.5">
               <span>$ whoami</span>
             </div>
-            <h1 className="text-[clamp(2.5rem,8vw,3.75rem)] sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] text-gradient mt-2">
+            <h1 className="text-[clamp(2.5rem,8vw,3.75rem)] sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] text-gradient mt-1">
               Aditya Pharande
             </h1>
           </motion.div>
@@ -105,12 +105,12 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
           {/* Subtitle & Description */}
           <motion.div
             {...descFadeProps}
-            className="text-center max-w-2xl mt-4 flex flex-col items-center gap-4"
+            className="text-center max-w-2xl mt-2.5 flex flex-col items-center gap-2"
           >
-            <p className="text-lg sm:text-xl font-medium tracking-tight text-foreground leading-relaxed">
+            <p className="text-base sm:text-[18px] font-medium tracking-tight text-foreground leading-relaxed">
               Full Stack Developer building <span className="text-accent font-semibold">developer tools</span>, <span className="text-accent font-semibold">backend systems</span>, and <span className="text-accent font-semibold">interactive web experiences</span>.
             </p>
-            <p className="text-secondary-text text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
+            <p className="text-secondary-text text-xs sm:text-sm leading-relaxed max-w-xl mx-auto">
               I turn ideas into production-ready software — from browser extensions and full-stack platforms to backend systems built for performance.
             </p>
           </motion.div>
@@ -118,65 +118,77 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
           {/* Developer Runtime Panel (System Monitor) */}
           <motion.div
             {...cardsFadeProps}
-            className="w-full max-w-[750px] bg-white dark:bg-card border border-[#e5e5e5] dark:border-border-subtle rounded-xl p-6 text-left shadow-sm hover:translate-y-[-2px] hover:border-[#cccccc] dark:hover:border-accent/30 hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition-all duration-300 select-none mt-12"
+            className="w-full max-w-[850px] bg-white dark:bg-card border border-[#e5e5e5] dark:border-border-subtle rounded-xl p-4 md:p-5 text-left shadow-sm hover:translate-y-[-2px] hover:border-[#cccccc] dark:hover:border-accent/30 hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition-all duration-300 select-none mt-5"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 divide-y md:divide-y-0 md:divide-x divide-border-subtle/50">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 divide-y md:divide-y-0 md:divide-x divide-border-subtle/50">
               
               {/* Left Side: System Status */}
-              <div className="flex flex-col gap-5 pr-0 md:pr-8">
+              <div className="flex flex-col gap-3 pr-0 md:pr-6">
                 <div>
-                  <h3 className="text-xs font-mono tracking-wider text-secondary-text/40 uppercase mb-3">System Status</h3>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-                    <span className="font-mono text-sm font-medium text-foreground">online</span>
+                  <h3 className="text-xs font-mono tracking-wider text-secondary-text/40 uppercase mb-1">System Status</h3>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                    <span className="font-mono text-xs font-medium text-foreground">online</span>
                   </div>
                 </div>
-                <div>
-                  <span className="text-xs font-mono text-secondary-text/40 block">role</span>
-                  <span className="text-sm font-mono font-medium text-foreground mt-0.5 block">Full Stack Developer</span>
-                </div>
-                <div>
-                  <span className="text-xs font-mono text-secondary-text/40 block">runtime</span>
-                  <span className="text-sm font-mono font-medium text-foreground mt-0.5 block">Computer Engineering</span>
-                </div>
-                <div>
-                  <span className="text-xs font-mono text-secondary-text/40 block">mode</span>
-                  <span className="text-sm font-mono font-medium text-foreground mt-0.5 block">learning + shipping</span>
-                </div>
-                <div>
-                  <span className="text-xs font-mono text-secondary-text/40 block">debug</span>
-                  <span className="text-sm font-mono font-medium text-foreground mt-0.5 block">active</span>
+                
+                <div className="grid grid-cols-[75px_1fr] gap-x-3 gap-y-1.5 text-xs font-mono">
+                  <span className="text-secondary-text/40">role</span>
+                  <span className="font-medium text-foreground">Full Stack Developer</span>
+                  
+                  <span className="text-secondary-text/40">runtime</span>
+                  <span className="font-medium text-foreground">Computer Engineering</span>
+                  
+                  <span className="text-secondary-text/40">mode</span>
+                  <span className="font-medium text-foreground">learning + shipping</span>
+                  
+                  <span className="text-secondary-text/40">debug</span>
+                  <span className="font-medium text-foreground">active</span>
                 </div>
               </div>
 
               {/* Right Side: Running Processes */}
-              <div className="flex flex-col gap-4 pl-0 md:pl-8 pt-6 md:pt-0">
+              <div className="flex flex-col gap-3 pl-0 md:pl-6 pt-4 md:pt-0">
                 <h3 className="text-xs font-mono tracking-wider text-secondary-text/40 uppercase mb-1">Running Processes</h3>
                 
-                <div className="flex items-start gap-3">
-                  <span className="text-accent font-mono text-xs mt-0.5">●</span>
+                <div className="flex flex-col gap-2.5">
                   <div>
-                    <span className="text-sm font-mono font-semibold text-foreground block">reflow.exe</span>
-                    <span className="text-xs font-mono text-secondary-text/60 mt-0.5 block">status: shipped</span>
-                    <span className="text-xs text-secondary-text mt-0.5 block">AI workspace manager</span>
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-accent text-[9px]">●</span>
+                        <span className="font-semibold text-foreground">reflow.exe</span>
+                      </div>
+                      <span className="text-secondary-text/50">shipped</span>
+                    </div>
+                    <span className="text-[11px] text-secondary-text/40 pl-3 block mt-0.5 leading-none">
+                      AI workspace manager
+                    </span>
                   </div>
-                </div>
 
-                <div className="flex items-start gap-3">
-                  <span className="text-accent font-mono text-xs mt-0.5">●</span>
                   <div>
-                    <span className="text-sm font-mono font-semibold text-foreground block">mini-redis.server</span>
-                    <span className="text-xs font-mono text-secondary-text/60 mt-0.5 block">status: experimental</span>
-                    <span className="text-xs text-secondary-text mt-0.5 block">cache engine</span>
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-accent text-[9px]">●</span>
+                        <span className="font-semibold text-foreground">mini-redis.server</span>
+                      </div>
+                      <span className="text-secondary-text/50">experimental</span>
+                    </div>
+                    <span className="text-[11px] text-secondary-text/40 pl-3 block mt-0.5 leading-none">
+                      cache engine
+                    </span>
                   </div>
-                </div>
 
-                <div className="flex items-start gap-3">
-                  <span className="text-accent font-mono text-xs mt-0.5">●</span>
                   <div>
-                    <span className="text-sm font-mono font-semibold text-foreground block">enginow.dev</span>
-                    <span className="text-xs font-mono text-secondary-text/60 mt-0.5 block">status: live</span>
-                    <span className="text-xs text-secondary-text mt-0.5 block">event platform</span>
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-accent text-[9px]">●</span>
+                        <span className="font-semibold text-foreground">enginow.dev</span>
+                      </div>
+                      <span className="text-secondary-text/50">live</span>
+                    </div>
+                    <span className="text-[11px] text-secondary-text/40 pl-3 block mt-0.5 leading-none">
+                      event platform
+                    </span>
                   </div>
                 </div>
               </div>
@@ -184,7 +196,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
             </div>
 
             {/* Tiny footer inside panel */}
-            <div className="border-t border-[#e5e5e5]/80 dark:border-border-subtle/50 mt-6 pt-4 text-[11px] font-mono text-secondary-text/40">
+            <div className="border-t border-[#e5e5e5]/80 dark:border-border-subtle/50 mt-4 pt-3 text-[11px] font-mono text-secondary-text/40">
               $ open projects
             </div>
           </motion.div>
@@ -192,7 +204,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
           {/* Developer CTA Buttons */}
           <motion.div
             {...buttonsFadeProps}
-            className="flex flex-col items-center gap-3 mt-12 w-full"
+            className="flex flex-col items-center gap-2.5 mt-6 w-full"
           >
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-sm sm:max-w-none px-4 sm:px-0">
               <Button href="#projects" variant="primary" className="w-full sm:w-auto min-h-[44px] flex items-center justify-center">
@@ -213,7 +225,6 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
               or type <code className="text-accent/70 font-semibold font-mono">&quot;projects&quot;</code> in terminal below
             </span>
           </motion.div>
-
 
         </div>
 
