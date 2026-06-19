@@ -56,7 +56,7 @@ export const Footer: React.FC = () => {
             </svg>
           </a>
           <a
-            href="mailto:adityapharande.dev@gmail.com"
+            href="mailto:adityapharande2606@gmail.com"
             className="text-secondary-text hover:text-foreground transition-colors"
             aria-label="Email"
           >
