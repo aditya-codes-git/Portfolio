@@ -47,13 +47,13 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
   };
 
   return (
-    <section className="relative min-h-[calc(100vh-72px)] flex flex-col justify-start items-center pt-16 pb-10 sm:pt-20 lg:pt-16 lg:pb-12 overflow-hidden text-center">
+    <section className="relative min-h-[calc(100vh-72px)] flex flex-col justify-start items-center pt-15 pb-10 lg:pb-12 overflow-hidden text-center">
       {/* Background radial highlight */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-accent/5 rounded-full blur-[140px] pointer-events-none" />
 
       {/* Subtle developer grid background */}
-      <div 
-        className="absolute inset-0 opacity-[0.04] pointer-events-none" 
+      <div
+        className="absolute inset-0 opacity-[0.04] pointer-events-none"
         style={{
           backgroundImage: `
             linear-gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
@@ -73,13 +73,13 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
       <div className="absolute bottom-28 left-12 font-mono text-[10.5px] text-foreground/[0.02] select-none pointer-events-none hidden md:block">
         <code>console.log(&quot;ideas → products&quot;);</code>
       </div>
-      
+
       <div className="max-w-6xl mx-auto px-6 w-full flex flex-col items-center">
         {/* Intro Info Content Container */}
-        <div className="hero-content max-w-[900px] w-full flex flex-col items-center">
-          
+        <div className="hero-content max-w-[900px] w-full flex flex-col items-center -translate-y-8 lg:-translate-y-10">
+
           {/* System Status Badge */}
-          <motion.div 
+          <motion.div
             {...statusFadeProps}
             className="inline-flex items-center gap-2 px-3 py-1 bg-card border border-border-subtle rounded-full w-fit select-none shadow-sm"
           >
@@ -90,7 +90,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
           </motion.div>
 
           {/* Name / Prompt Block */}
-          <motion.div 
+          <motion.div
             {...nameFadeProps}
             className="mt-3 flex flex-col items-center select-none"
           >
@@ -121,7 +121,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
             className="w-full max-w-[850px] bg-white dark:bg-card border border-[#e5e5e5] dark:border-border-subtle rounded-xl p-4 md:p-5 text-left shadow-sm hover:translate-y-[-2px] hover:border-[#cccccc] dark:hover:border-accent/30 hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition-all duration-300 select-none mt-5"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 divide-y md:divide-y-0 md:divide-x divide-border-subtle/50">
-              
+
               {/* Left Side: System Status */}
               <div className="flex flex-col gap-3 pr-0 md:pr-6">
                 <div>
@@ -131,17 +131,17 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
                     <span className="font-mono text-xs font-medium text-foreground">online</span>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-[75px_1fr] gap-x-3 gap-y-1.5 text-xs font-mono">
                   <span className="text-secondary-text/40">role</span>
                   <span className="font-medium text-foreground">Full Stack Developer</span>
-                  
+
                   <span className="text-secondary-text/40">runtime</span>
                   <span className="font-medium text-foreground">Computer Engineering</span>
-                  
+
                   <span className="text-secondary-text/40">mode</span>
                   <span className="font-medium text-foreground">learning + shipping</span>
-                  
+
                   <span className="text-secondary-text/40">debug</span>
                   <span className="font-medium text-foreground">active</span>
                 </div>
@@ -150,7 +150,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
               {/* Right Side: Running Processes */}
               <div className="flex flex-col gap-3 pl-0 md:pl-6 pt-4 md:pt-0">
                 <h3 className="text-xs font-mono tracking-wider text-secondary-text/40 uppercase mb-1">Running Processes</h3>
-                
+
                 <div className="flex flex-col gap-2.5">
                   <div>
                     <div className="flex items-center justify-between text-xs font-mono">
