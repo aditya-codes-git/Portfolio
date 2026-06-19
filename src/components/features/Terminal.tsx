@@ -537,11 +537,27 @@ export const Terminal: React.FC = () => {
               }
             }, 8000);
 
+            const historyExchanges = logs
+              .filter(
+                (log) =>
+                  log.command &&
+                  log.output &&
+                  (typeof log.output === "string" || Array.isArray(log.output))
+              )
+              .slice(-3)
+              .map((log) => ({
+                command: log.command,
+                output: Array.isArray(log.output) ? log.output.join("\n") : String(log.output),
+              }));
+
             try {
               const response = await fetch("/api/terminal-ai", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ input: trimmedInput }),
+                body: JSON.stringify({ 
+                  input: trimmedInput,
+                  history: historyExchanges 
+                }),
                 signal: controller.signal
               });
 
