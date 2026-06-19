@@ -25,7 +25,7 @@ export const projects: Project[] = [
     liveUrl: "#"
   },
   {
-    id: "miniredis",
+    id: "mini-redis",
     title: "Mini Redis",
     subtitle: "In-Memory Cache System",
     description: "Redis-inspired caching system implementing LRU eviction, TTL expiration, and constant-time retrieval.",

@@ -63,7 +63,7 @@ export const projectDetails: Record<string, ProjectDetail> = {
       }
     ],
     githubUrl: "https://github.com/aditya-codes-git/reflow",
-    liveUrl: "https://reflow-workspace.vercel.app" // Placeholder/live demo
+    liveUrl: ""
   },
   "mini-redis": {
     slug: "mini-redis",

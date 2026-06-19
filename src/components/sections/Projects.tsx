@@ -1,7 +1,9 @@
+"use client";
+
 import React from "react";
+import Link from "next/link";
 import { projects } from "@/data/projects";
 import { Card } from "@/components/ui/Card";
-import { SectionTitle } from "@/components/ui/SectionTitle";
 import { ExternalLink, Cpu } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -9,12 +11,43 @@ export const Projects: React.FC = () => {
   return (
     <section id="projects" className="py-24 sm:py-32 border-t border-border-subtle bg-background">
       <div className="max-w-6xl mx-auto px-6">
-        <SectionTitle
-          label="Portfolio"
-          title="Featured Projects"
-          subtitle="Engineering systems, developer tooling, and smart browser extensions built for efficiency and scale."
-        />
+        
+        {/* Header with View All Projects Button */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 sm:mb-16">
+          <div className="space-y-3 max-w-xl text-left">
+            <span className="text-xs font-mono tracking-widest text-accent uppercase block">
+              // Portfolio
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground text-gradient">
+              Featured Projects
+            </h2>
+            <p className="text-sm sm:text-base text-secondary-text leading-relaxed">
+              Engineering systems, developer tooling, and smart browser extensions built for efficiency and scale.
+            </p>
+            
+            {/* Mobile "View All Projects" Button - directly below description */}
+            <div className="md:hidden pt-2">
+              <Link
+                href="/projects"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-card border border-[#e5e5e5] dark:border-border-subtle hover:border-[#cccccc] dark:hover:border-accent/40 text-foreground hover:text-accent font-medium text-sm rounded shadow-sm transition-all duration-200 select-none cursor-pointer"
+              >
+                View All Projects <span className="font-mono">→</span>
+              </Link>
+            </div>
+          </div>
+          
+          {/* Desktop "View All Projects" Button */}
+          <div className="hidden md:block">
+            <Link
+              href="/projects"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-card border border-[#e5e5e5] dark:border-border-subtle hover:border-[#cccccc] dark:hover:border-accent/40 text-foreground hover:text-accent font-medium text-sm rounded shadow-sm transition-all duration-200 select-none cursor-pointer"
+            >
+              View All Projects <span className="font-mono">→</span>
+            </Link>
+          </div>
+        </div>
 
+        {/* Project Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
           {projects.map((project) => (
             <motion.div
@@ -23,8 +56,10 @@ export const Projects: React.FC = () => {
               transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className="group"
             >
-              <Card className="h-full p-6 bg-card flex flex-col justify-between rounded-md transition-colors duration-300 group-hover:border-accent/30 group-hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
-                <div className="space-y-4">
+              <Card className="h-full p-6 bg-card flex flex-col rounded-md transition-colors duration-300 group-hover:border-accent/30 group-hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] text-left">
+                
+                {/* Main Content (flex-1 to push button area to bottom) */}
+                <div className="flex-1 space-y-4">
                   {/* Header */}
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
@@ -86,19 +121,37 @@ export const Projects: React.FC = () => {
                       ))}
                     </ul>
                   </div>
+
+                  {/* Tech Tags */}
+                  <div className="flex flex-wrap gap-1.5 mt-6 border-t border-border-subtle/30 pt-4">
+                    {project.tech.map((techItem) => (
+                      <span
+                        key={techItem}
+                        className="px-2 py-0.5 text-[10px] font-mono bg-card-alt border border-border-subtle text-secondary-text rounded-sm uppercase tracking-tight"
+                      >
+                        {techItem}
+                      </span>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Tech Tags */}
-                <div className="flex flex-wrap gap-1.5 mt-6 border-t border-border-subtle/30 pt-4">
-                  {project.tech.map((techItem) => (
-                    <span
-                      key={techItem}
-                      className="px-2 py-0.5 text-[10px] font-mono bg-card-alt border border-border-subtle text-secondary-text rounded-sm uppercase tracking-tight"
+                {/* Open Project CTA Button Area */}
+                <div className="border-t border-border-subtle/50 mt-6 pt-4 flex items-center justify-start">
+                  <Link
+                    href={`/projects/${project.id}`}
+                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-foreground hover:text-accent group/btn transition-colors cursor-pointer select-none"
+                  >
+                    Open {project.title}{" "}
+                    <motion.span
+                      className="inline-block"
+                      whileHover={{ x: 4 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
                     >
-                      {techItem}
-                    </span>
-                  ))}
+                      →
+                    </motion.span>
+                  </Link>
                 </div>
+                
               </Card>
             </motion.div>
           ))}
@@ -107,3 +160,4 @@ export const Projects: React.FC = () => {
     </section>
   );
 };
+export default Projects;
