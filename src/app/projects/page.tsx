@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card } from "@/components/ui/Card";
@@ -10,7 +11,16 @@ import { Cpu, ArrowRight, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function ProjectsPage() {
+  const router = useRouter();
   const projectsList = Object.values(projectDetails);
+
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/");
+    }
+  };
 
   const fadeUpProps = {
     initial: { opacity: 0, y: 15 },
@@ -29,8 +39,8 @@ export default function ProjectsPage() {
         <div className="max-w-6xl mx-auto px-6 w-full space-y-12">
           {/* Header */}
           <motion.div {...fadeUpProps} className="space-y-4">
-            <Button href="/" variant="ghost" size="sm" className="-ml-3">
-              <ArrowLeft className="w-4 h-4" /> Back to Home
+            <Button onClick={handleBack} variant="ghost" size="sm" className="-ml-3">
+              <ArrowLeft className="w-4 h-4" /> Go Back
             </Button>
             <div className="space-y-2">
               <span className="text-xs font-mono tracking-widest text-accent uppercase block">

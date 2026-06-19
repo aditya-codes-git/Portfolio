@@ -1,7 +1,7 @@
 "use client";
 
 import React, { use } from "react";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import { projectDetails } from "@/data/projectDetails";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -17,10 +17,19 @@ interface PageProps {
 export default function ProjectDetailPage({ params }: PageProps) {
   const resolvedParams = use(params);
   const project = projectDetails[resolvedParams.slug];
+  const router = useRouter();
 
   if (!project) {
     notFound();
   }
+
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/projects");
+    }
+  };
 
   const fadeUpProps = {
     initial: { opacity: 0, y: 15 },
@@ -40,8 +49,8 @@ export default function ProjectDetailPage({ params }: PageProps) {
           
           {/* Navigation & Header */}
           <motion.div {...fadeUpProps} className="space-y-6">
-            <Button href="/projects" variant="ghost" size="sm" className="-ml-3">
-              <ArrowLeft className="w-4 h-4" /> Back to Projects
+            <Button onClick={handleBack} variant="ghost" size="sm" className="-ml-3">
+              <ArrowLeft className="w-4 h-4" /> Go Back
             </Button>
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-border-subtle pb-8">

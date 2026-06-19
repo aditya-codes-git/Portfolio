@@ -47,7 +47,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
   };
 
   return (
-    <section className="relative min-h-[calc(100dvh-4rem)] flex flex-col justify-start items-center pt-4 pb-12 lg:pt-6 lg:pb-16 overflow-hidden text-center">
+    <section className="relative min-h-[calc(100vh-72px)] flex flex-col justify-start items-center pt-16 pb-10 sm:pt-20 lg:pt-16 lg:pb-12 overflow-hidden text-center">
       {/* Background radial highlight */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-accent/5 rounded-full blur-[140px] pointer-events-none" />
 
@@ -232,7 +232,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
         <motion.div
           id="terminal"
           {...terminalFadeProps}
-          className="w-[88vw] max-w-[1400px] mt-16 flex justify-center"
+          className="w-[88vw] max-w-[1400px] mt-10 flex justify-center"
         >
           <Terminal />
         </motion.div>

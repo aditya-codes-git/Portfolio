@@ -97,7 +97,7 @@ export const Projects: React.FC = () => {
   };
 
   return (
-    <section id="projects" className="py-24 sm:py-32 border-t border-border-subtle bg-background select-none">
+    <section id="projects" className="scroll-mt-24 py-24 sm:py-32 border-t border-border-subtle bg-background select-none">
       <div className="max-w-6xl mx-auto px-6">
         
         {/* Compact Process Header */}
